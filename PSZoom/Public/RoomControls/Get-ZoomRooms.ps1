@@ -7,12 +7,12 @@ Retrieve the Zoom Rooms ID and name.
 .PARAMETER JsonRPC
 A String specifying the version of the JSON-RPC protocol. Default is 2.0.
 .PARAMETER Name
-Retrive all zoom rooms, if it is blank, retrive zoom rooms. Max of 100.
+Retrieve all zoom rooms, if it is blank, retrieve zoom rooms. Max of 100.
 .PARAMETER Page
-Smiliar to pagination, retrive zoom rooms belongs to this page if there are too many zoom rooms under an account. 
+Similar to pagination, retrieve zoom rooms belongs to this page if there are too many zoom rooms under an account. 
 The value should be greater than or equal to 1 and less than or equal to 10.
 .PARAMETER PageSize
-Smiliar to pagination, retrive how many zoom rooms per page. the value should be greater than or equal to 1 and less than or equal to 100.
+Similar to pagination, retrieve how many zoom rooms per page. the value should be greater than or equal to 1 and less than or equal to 100.
 .PARAMETER ApiKey
 The Api Key.
 .PARAMETER ApiSecret
@@ -69,14 +69,14 @@ function Get-ZoomRooms {
             ValueFromPipelineByPropertyName = $True,
             Position = 1
         )]
-        [ValidateRange(1,10)]
+        [ValidateRange(1, 10)]
         [int]$Page = 1,
             
         [Parameter(
             ValueFromPipelineByPropertyName = $True, 
             Position = 2
         )]
-        [ValidateRange(1,100)]
+        [ValidateRange(1, 100)]
         [Alias('page_size')]
         [int]$PageSize = 100,
 
@@ -102,34 +102,31 @@ function Get-ZoomRooms {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/rooms/zrlist"
 
         $RequestBody = @{
-            'jsonrpc'   = $JsonRpc
-            'method'    = $Method
-            'params'    = @{
+            'jsonrpc' = $JsonRpc
+            'method'  = $Method
+            'params'  = @{
                 'zr_name'   = $Name
                 'page'      = $Page
                 'page_size' = $PageSize
             }
         }
-        
+
         $RequestBody = ConvertTo-Json $RequestBody -Depth 2
 
-        try {
-           $response = Invoke-RestMethod -Uri $Request.Uri -Headers $Headers -Body $RequestBody -Method POST
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $RequestBody -Method POST -Token $Token
 
         if ($Full) {
             Write-Output $response
-        } else {
+        }
+        else {
             Write-Output $response.result.data
         }
     }
