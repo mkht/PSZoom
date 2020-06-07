@@ -4,8 +4,6 @@
 Invoke REST API request for Zoom API.
 .EXAMPLE
 Invoke-ZoomApiRestMethod -Uri 'https://api.zoom.us/v2/users/foo@example.com' -Method GET -ApiKey $ApiKey -ApiSecret $ApiSecret
-.EXAMPLE
-$Headers = New-ZoomHeaders -Token $Token
 .OUTPUTS
 Generic dictionary.
 
@@ -70,7 +68,7 @@ function Invoke-ZoomApiRestMethod {
         
         if ($PSBoundParameters.ContainsKey('Query')) {
             $parsedQuery = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
-            foreach($key in $Query.Keys){
+            foreach ($key in $Query.Keys) {
                 $parsedQuery.Add($key, $Query[$key])
             }
             $Request.Query = $parsedQuery.ToString()
