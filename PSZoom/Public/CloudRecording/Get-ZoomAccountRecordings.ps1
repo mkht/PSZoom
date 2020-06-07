@@ -80,8 +80,8 @@ function Get-ZoomAccountRecordings {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -105,14 +105,7 @@ function Get-ZoomAccountRecordings {
         } 
         
         $Request.Query = $query.ToString()
-
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $RequestBody -Method GET
-        }
-        catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
         Write-Output $response
     }
 }

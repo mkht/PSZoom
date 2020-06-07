@@ -1,10 +1,10 @@
 <#
 
 .SYNOPSIS
-Delete a sprecific recording file from a meeting.
+Delete a specific recording file from a meeting.
 
 .DESCRIPTION
-Delete a sprecific recording file from a meeting.
+Delete a specific recording file from a meeting.
 
 .PARAMETER MeetingId
 The meeting ID or meeting UUID. If the meeting ID is provided instead of UUID,the response will be for the latest 
@@ -36,7 +36,7 @@ https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordin
 #>
 
 function Remove-ZoomMeetingRecordingFile {
-    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
     param (
         [Parameter(
             Mandatory = $True,
@@ -61,25 +61,19 @@ function Remove-ZoomMeetingRecordingFile {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
-        foreach($RecId in $RecordingId) {
+        foreach ($RecId in $RecordingId) {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId/recordings/$RecId"
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
             $query.Add('action', $Action)
             $Request.Query = $query.ToString()
 
-            if ($PScmdlet.ShouldProcess($user, 'Remove')) {
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $RequestBody -Method DELETE
-                }
-                catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
-
+            if ($PSCmdlet.ShouldProcess($user, 'Remove')) {
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
                 Write-Output $response
             }
         }
