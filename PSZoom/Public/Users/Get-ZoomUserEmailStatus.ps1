@@ -1,10 +1,10 @@
 <#
 
 .SYNOPSIS
-Verify if a user’s email is registered with Zoom.
+Verify if a user's email is registered with Zoom.
 
 .DESCRIPTION
-Verify if a user’s email is registered with Zoom.
+Verify if a user's email is registered with Zoom.
 
 .PARAMETER Email
 The email address to be verified.
@@ -22,7 +22,7 @@ Get-ZoomUserEmailStatus jsmith@lawfirm.com
 https://marketplace.zoom.us/docs/api-reference/zoom-api/users/useremail
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 
 #>

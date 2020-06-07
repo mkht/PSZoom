@@ -4,7 +4,7 @@
 Delete a specific assistant.
 
 .DESCRIPTION
-Delete a specific assistant. Assistants are the users to whom the current user has assigned  on the user’s behalf.
+Delete a specific assistant. Assistants are the users to whom the current user has assigned  on the user's behalf.
 
 .PARAMETER UserId
 The user ID or email address.
@@ -16,7 +16,7 @@ The Api Key.
 The Api Secret.
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 .EXAMPLE
 Remove-ZoomSpecificUserAssistant jmcevoy@lawfirm.com

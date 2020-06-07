@@ -6,8 +6,8 @@ List Cloud Recordings available on an Account.
 .DESCRIPTION
 List Cloud Recordings available on an Account.
 
-To access a password protected cloud recording, add an “access_token” parameter to the download URL and provide 
-JWT as the value of the “access_token”.
+To access a password protected cloud recording, add an 'access_token' parameter to the download URL and provide 
+JWT as the value of the 'access_token'.
 
 Prerequisites:
 

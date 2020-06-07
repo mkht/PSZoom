@@ -1,9 +1,9 @@
 <#
 
 .SYNOPSIS
-Update a meeting’s live stream.
+Update a meeting's live stream.
 .DESCRIPTION
-Update a meeting’s live stream.
+Update a meeting's live stream.
 .PARAMETER MeetingId
 The meeting ID.
 .PARAMETER ApiKey

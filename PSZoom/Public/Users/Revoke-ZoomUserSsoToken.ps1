@@ -1,10 +1,10 @@
 <#
 
 .SYNOPSIS
-Revoke a user’s SSO token.
+Revoke a user's SSO token.
 
 .DESCRIPTION
-Revoke a user’s SSO token.
+Revoke a user's SSO token.
 
 .PARAMETER UserId
 The user ID or email address.

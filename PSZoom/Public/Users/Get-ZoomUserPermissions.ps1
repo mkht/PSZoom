@@ -1,10 +1,10 @@
 <#
 
 .SYNOPSIS
-Retrieve a user’s permissions.
+Retrieve a user's permissions.
 
 .DESCRIPTION
-Retrieve a user’s permissions.
+Retrieve a user's permissions.
 
 .PARAMETER UserId
 The user ID or email address.
@@ -16,7 +16,7 @@ The Api Key.
 The Api Secret.
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 .EXAMPLE
 Get-ZoomUserPermissions jsmith@lawfirm.com

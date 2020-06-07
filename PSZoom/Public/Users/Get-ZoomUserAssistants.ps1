@@ -19,7 +19,7 @@ The Api Secret.
 Get-ZoomUserAssistants jmcevoy@lawfirm.com
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 
 #>

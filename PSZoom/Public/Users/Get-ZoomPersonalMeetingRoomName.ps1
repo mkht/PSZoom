@@ -1,10 +1,10 @@
 <#
 
 .SYNOPSIS
-Check if the user’s personal meeting room name exists.
+Check if the user's personal meeting room name exists.
 
 .DESCRIPTION
-Check if the user’s personal meeting room name exists.
+Check if the user's personal meeting room name exists.
 
 .PARAMETER VanityName
 Personal meeting room name.

@@ -1,9 +1,9 @@
 <#
 
 .SYNOPSIS
-Upload a user’s profile picture.
+Upload a user's profile picture.
 .DESCRIPTION
-Upload a user’s profile picture.
+Upload a user's profile picture.
 .PARAMETER UserId
 The user ID or email address.
 .PARAMETER FileName
@@ -13,7 +13,7 @@ The Api Key.
 .PARAMETER ApiSecret
 The Api Secret.
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 .EXAMPLE
 Update-ZoomProfilePicture -UserId 'jmcevoy@lawfirm.com' -FileName "C:\Development\Zoom\PSZoom\mcevoy.jpg"
 .LINK
@@ -38,7 +38,7 @@ function Update-ZoomProfilePicture {
             ValueFromPipelineByPropertyName = $True,
             Position = 1
         )]
-        [ValidateScript({Test-Path -Path $_})]
+        [ValidateScript( { Test-Path -Path $_ })]
         [string]$FileName,
 
         [ValidateNotNullOrEmpty()]
@@ -60,7 +60,8 @@ function Update-ZoomProfilePicture {
 
             if ($PSVersionTable.PSVersion.Major -lt 6) {
                 $FileBytes = Get-Content -Path $FileName -Encoding Byte
-            } else {
+            }
+            else {
                 $FileBytes = Get-Content -Path $FileName -AsByteStream
             }
             
@@ -79,7 +80,8 @@ function Update-ZoomProfilePicture {
             
             try {
                 $response = Invoke-RestMethod -Uri $request.Uri -ContentType "multipart/form-data; boundary=`"$Boundary`"" -Headers $headers -Body $RequestBody -Method POST
-            } catch {
+            }
+            catch {
                 Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
             }
     

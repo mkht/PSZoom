@@ -4,7 +4,7 @@
 Delete a specific scheduler.
 
 .DESCRIPTION
-Delete a specific scheduler. Schedulers are the users to whom the current user has assigned  on the user’s behalf.
+Delete a specific scheduler. Schedulers are the users to whom the current user has assigned  on the user's behalf.
 
 .PARAMETER UserId
 The user ID or email address.

@@ -4,7 +4,7 @@
 Add assistants to user(s).
 
 .DESCRIPTION
-Add assistants to user(s). Assistants are the users to whom the current user has assigned scheduling privilege on the user’s behalf.
+Add assistants to user(s). Assistants are the users to whom the current user has assigned scheduling privilege on the user's behalf.
 
 .PARAMETER UserId
 The user ID or email address.
@@ -30,14 +30,14 @@ Add assistants to a user.
 Add-ZoomUserAssistants -UserId  'okenobi@thejedi.com' -AssistantId '123456789','987654321'
 
 .EXAMPLE
-Add assitant to multiple users.
+Add assistant to multiple users.
 Add-ZoomUserAssistants -UserId  'okenobi@thejedi.com', 'dsidious@thesith.com' -AssistantId 'dvader@thesith.com',
 
 .LINK
 https://marketplace.zoom.us/docs/api-reference/zoom-api/users/userassistantcreate
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 #>
 

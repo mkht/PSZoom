@@ -16,7 +16,7 @@ The Api Key.
 The Api Secret.
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 .EXAMPLE
 Get-ZoomUserSettings jsmith@lawfirm.com
