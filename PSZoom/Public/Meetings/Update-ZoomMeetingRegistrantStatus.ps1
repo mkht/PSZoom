@@ -1,9 +1,9 @@
 <#
 
 .SYNOPSIS
-Update a meeting registrant’s status.
+Update a meeting registrant's status.
 .DESCRIPTION
-Update a meeting registrant’s status.
+Update a meeting registrant's status.
 .PARAMETER MeetingId
 The meeting ID.
 .PARAMETER ApiKey
@@ -32,22 +32,22 @@ function Update-ZoomMeetingRegistrantStatus {
 
         [Parameter(
             ValueFromPipelineByPropertyName = $True, 
-            Position=1
+            Position = 1
         )]
-        [Alias('occurence_id')]
+        [Alias('occurrence_id')]
         [string]$OccurrenceId,
 
         [Parameter(
             Mandatory = $True,    
             ValueFromPipelineByPropertyName = $True, 
-            Position=2
+            Position = 2
         )]
         [ValidateSet('approve', 'cancel', 'deny')]
         [string]$Action,
 
         [Parameter(
             ValueFromPipelineByPropertyName = $True, 
-            Position=3
+            Position = 3
         )]
         [hashtable[]]$Registrants,
 
@@ -59,16 +59,16 @@ function Update-ZoomMeetingRegistrantStatus {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId/registrants/status"
         $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
 
-        if ($PSBoundParameters.ContainsKey('OcurrenceId')) {
-            $query.Add('occurrence_id', $OcurrenceId)
+        if ($PSBoundParameters.ContainsKey('OccurrenceId')) {
+            $query.Add('occurrence_id', $OccurrenceId)
             $Request.Query = $query.toString()
         }
         
@@ -82,12 +82,7 @@ function Update-ZoomMeetingRegistrantStatus {
 
         $requestBody = $requestBody | ConvertTo-Json
 
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method PUT
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-        
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PUT -Token $Token
         Write-Output $response
     }
 }

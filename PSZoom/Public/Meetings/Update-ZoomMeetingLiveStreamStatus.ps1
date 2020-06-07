@@ -1,9 +1,9 @@
 <#
 
 .SYNOPSIS
-Update a meeting’s live stream.
+Update a meeting's live stream.
 .DESCRIPTION
-Update a meeting’s live stream.
+Update a meeting's live stream.
 .PARAMETER MeetingId
 The meeting ID.
 .PARAMETER ApiKey
@@ -53,13 +53,13 @@ function Update-ZoomMeetingLiveStreamStatus {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         $Uri = "https://api.zoom.us/v2/meetings/$MeetingId/livestream/status"
-        $requestBody = @{}
+        $requestBody = @{ }
 
         if ($PSBoundParameters.ContainsKey('StreamUrl')) {
             $requestBody.Add('stream_url', $StreamUrl)
@@ -75,12 +75,7 @@ function Update-ZoomMeetingLiveStreamStatus {
         
         $requestBody = $requestBody | ConvertTo-Json
 
-        try {
-            $response = Invoke-RestMethod -Uri $Uri -Headers $headers -Body $requestBody -Method PATCH
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-        
+        $response = Invoke-ZoomApiRestMethod -Uri $Uri -Body $requestBody -Method PATCH -Token $Token
         Write-Output $response
     }
 }

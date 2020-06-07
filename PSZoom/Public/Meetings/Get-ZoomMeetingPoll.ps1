@@ -35,7 +35,7 @@ function Get-ZoomMeetingPoll {
         [Parameter(
             Mandatory = $True,
             ValueFromPipelineByPropertyName = $True, 
-            Position=1
+            Position = 1
         )]
         [Alias('poll_id')]
         [string]$PollId,
@@ -48,19 +48,13 @@ function Get-ZoomMeetingPoll {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId/polls/$PollId"
-    
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $RequestBody -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-        
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
         Write-Output $response
     }
 }

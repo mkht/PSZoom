@@ -45,7 +45,7 @@ function Get-ZoomMeeting {
 
         [Parameter(
             ValueFromPipelineByPropertyName = $True, 
-            Position=1
+            Position = 1
         )]
         [Alias('ocurrence_id')]
         [string]$OccurrenceId,
@@ -59,8 +59,8 @@ function Get-ZoomMeeting {
 
     begin {
  
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -70,13 +70,9 @@ function Get-ZoomMeeting {
         if ($PSBoundParameters.ContainsKey('OccurrenceId')) {
             $query.Add('occurrence_id', $OccurrenceId)
             $Request.Query = $query.toString()
-        }        
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $RequestBody -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
         }
-        
+
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
         Write-Output $response
     }
 }

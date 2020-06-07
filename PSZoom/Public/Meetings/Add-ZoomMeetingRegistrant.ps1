@@ -83,7 +83,7 @@ function Add-ZoomMeetingRegistrant {
 
         [Parameter(
             ValueFromPipelineByPropertyName = $True, 
-            Position=1
+            Position = 1
         )]
         [Alias('')]
         [string]$OcurrenceId,
@@ -164,8 +164,8 @@ function Add-ZoomMeetingRegistrant {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -203,11 +203,11 @@ function Add-ZoomMeetingRegistrant {
                 $Parameters = $PSBoundParameters
             )
 
-            $NewObj = @{}
+            $NewObj = @{ }
     
             foreach ($Key in $Obj.Keys) {
-                if ($Parameters.ContainsKey($Obj.$Key)){
-                    $Newobj.Add($Key, (get-variable $Obj.$Key).value)
+                if ($Parameters.ContainsKey($Obj.$Key)) {
+                    $NewObj.Add($Key, (get-variable $Obj.$Key).value)
                 }
             }
     
@@ -223,10 +223,12 @@ function Add-ZoomMeetingRegistrant {
 
         $requestBody = $requestBody | ConvertTo-Json
         try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method POST
-        } catch {
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method POST -Token $Token
+        }
+        catch {
             Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        } finally {
+        }
+        finally {
             Write-Output $response
         }        
     }
