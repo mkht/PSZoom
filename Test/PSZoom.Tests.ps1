@@ -32,29 +32,6 @@ foreach ($file in $Private) {
 $Module = Get-Module $ModuleName
 $Commands = $Module.ExportedCommands.Keys
 
-Mock Invoke-RestMethod -ModuleName $ModuleName {
-    $Response = @{
-        Body    = $Body
-        Uri     = $Uri
-        Method  = $Method
-        Headers = $Headers
-    }
-
-    Write-Output $Response
-}
-
-Mock -ModuleName $ModuleName Invoke-RestMethod {
-    $Response = @{
-        Body    = $Body
-        Uri     = $Uri
-        Method  = $Method
-        Headers = $Headers
-    }
-
-    Write-Output $Response
-}
-
-
 #Additional variables to use when testing
 $AssistantId = 'TestAssistantId'
 $AssistantId2 = 'TestAssistantId2'
@@ -75,6 +52,33 @@ $ApiKeySecret = @{
     ApiKey    = 'TestApiKey'
     ApiSecret = 'TestApiSecret'
 }
+
+Mock Invoke-RestMethod -ModuleName $ModuleName {
+    $Response = @{
+        Body    = $Body
+        Uri     = $Uri
+        Method  = $Method
+        Headers = $Headers
+    }
+
+    Write-Output $Response
+}
+
+Mock Invoke-ZoomApiRestMethod -ModuleName $ModuleName {
+    $Response = @{
+        Body   = $Body
+        Uri    = $Uri
+        Query  = $Query
+        Method = $Method
+    }
+
+    Write-Output $Response
+}
+
+Mock New-ZoomApiToken -ModuleName $ModuleName {
+    return 'token'
+} -ParameterFilter { $ApiKey -eq $ApiKeySecret.ApiKey -and $ApiSecret -eq $ApiKeySecret.ApiSecret }
+
 
 Describe 'PSZoom General Tests' {
     It 'Should be the correct name' {
@@ -157,7 +161,7 @@ Describe 'PSZoom User Tests' {
                 'Update-ZoomProfilePicture',
                 'Update-ZoomUser',
                 'Update-ZoomUserEmail',
-                'Update-ZoomUserpassword',
+                'Update-ZoomUserPassword',
                 'Update-ZoomUserSettings',
                 'Update-ZoomUserStatus'
             )
@@ -290,7 +294,7 @@ Describe 'New-ZoomUser' {
     "properties": {
         "action": {
         "type": "string",
-        "description": "Specify how to create the new user: <br>`create` - User will get an email sent from Zoom. There is a confirmation link in this email. The user will then need to use the link to activate their Zoom account. The user can then set or change their password.<br>`autoCreate` - This action is provided for the enterprise customer who has a managed domain. This feature is disabled by default because of the security risk involved in creating a user who does not belong to your domain.<br>`custCreate` - This action is provided for API partners only. A user created in this way has no password and is not able to log into the Zoom web site or client.<br>`ssoCreate` - This action is provided for the enabled “Pre-provisioning SSO User” option. A user created in this way has no password. If not a basic user, a personal vanity URL using the user name (no domain) of the provisioning email will be generated. If the user name or PMI is invalid or occupied, it will use a random number or random personal vanity URL.",
+        "description": "Specify how to create the new user: <br>`create` - User will get an email sent from Zoom. There is a confirmation link in this email. The user will then need to use the link to activate their Zoom account. The user can then set or change their password.<br>`autoCreate` - This action is provided for the enterprise customer who has a managed domain. This feature is disabled by default because of the security risk involved in creating a user who does not belong to your domain.<br>`custCreate` - This action is provided for API partners only. A user created in this way has no password and is not able to log into the Zoom web site or client.<br>`ssoCreate` - This action is provided for the enabled âPre-provisioning SSO Userâ option. A user created in this way has no password. If not a basic user, a personal vanity URL using the user name (no domain) of the provisioning email will be generated. If the user name or PMI is invalid or occupied, it will use a random number or random personal vanity URL.",
         "enum": [
             "create",
             "autoCreate",
@@ -392,17 +396,17 @@ Describe 'Remove-ZoomSpecificUserAssistant' {
 
     It 'Invokes rest method for multiple user IDs' {
         Remove-ZoomSpecificUserAssistant -UserId $UserId, $UserId2 -AssistantId $AssistantId @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
 
     It 'Invokes rest method for multiple user schedulers' {
         Remove-ZoomSpecificUserAssistant -UserId $UserId-AssistantId $AssistantId, $AssistantId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
     
     It 'Invokes rest method for multiple user IDs and schedulers at the same time' {
         Remove-ZoomSpecificUserAssistant -UserId $UserId, $UserId2 -AssistantId $AssistantId, $AssistantId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 4 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 4 -Scope It -ModuleName $ModuleName
     }
 }
 
@@ -419,17 +423,17 @@ Describe 'Remove-ZoomSpecificUserScheduler' {
 
     It 'Invokes rest method for multiple user IDs' {
         Remove-ZoomSpecificUserAssistant -UserId $UserId, $UserId2 -AssistantId $AssistantId @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
 
     It 'Invokes rest method for multiple user schedulers' {
         Remove-ZoomSpecificUserAssistant -UserId $UserId-AssistantId $AssistantId, $AssistantId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
     
     It 'Invokes rest method for multiple user IDs and schedulers at the same time' {
         Remove-ZoomSpecificUserScheduler -UserId $UserId, $UserId2 -SchedulerId $AssistantId, $AssistantId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 4 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 4 -Scope It -ModuleName $ModuleName
     }
 }
 
@@ -455,7 +459,7 @@ Describe 'Remove-ZoomUser' {
     
     It 'Invokes rest method for each user inputted' {
         Remove-ZoomUser -UserId $UserId, $UserId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
 }
 
@@ -472,7 +476,7 @@ Describe 'Remove-ZoomUserAssistants' {
     
     It 'Invokes rest method for each user inputted' {
         Remove-ZoomUserAssistants -UserId $UserId, $UserId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
 }
 
@@ -489,7 +493,7 @@ Describe 'Remove-ZoomUserSchedulers' {
     
     It 'Invokes rest method for each user inputted' {
         Remove-ZoomUserSchedulers -UserId $UserId, $UserId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
 }
 
@@ -506,7 +510,7 @@ Describe 'Revoke-ZoomUserSsoToken' {
     
     It 'Invokes rest method for each user inputted' {
         Revoke-ZoomUserSsoToken -UserId $UserId, $UserId2 @ApiKeySecret
-        Assert-MockCalled -CommandName Invoke-RestMethod -Times 2 -Scope It -ModuleName $ModuleName
+        Assert-MockCalled -CommandName Invoke-ZoomApiRestMethod -Times 2 -Scope It -ModuleName $ModuleName
     }
 }
 
@@ -3253,7 +3257,7 @@ Describe 'Update-ZoomMeetingRegistrantStatus' {
     }
 
     It 'Uses the correct uri and path parameter' {
-        $Request.Uri | Should Be "https://api.zoom.us/v2/meetings/$MeetingId/registrants/status"
+        $Request.Uri | Should Be "https://api.zoom.us/v2/meetings/$MeetingId/registrants/status?occurrence_id=$($OccurrenceId)"
     }
 
     It 'Validates against the JSON schema' {
