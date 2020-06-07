@@ -30,8 +30,8 @@ Update-ZoomGroup -GroupId 'Jedi' -Name 'Sith'
 
 #>
 
-function Update-ZoomGroup  {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact= 'Low')]
+function Update-ZoomGroup {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
         [Parameter(
             Mandatory = $True, 
@@ -55,8 +55,8 @@ function Update-ZoomGroup  {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -68,13 +68,8 @@ function Update-ZoomGroup  {
 
         $requestBody = $requestBody | ConvertTo-Json
 
-        if ($PScmdlet.ShouldProcess($GroupId, 'Update')) {
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method PATCH
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-
+        if ($PSCmdlet.ShouldProcess($GroupId, 'Update')) {
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PATCH -Token $Token
             Write-Verbose "Changed group name to $Name."
             Write-Output $response
         }

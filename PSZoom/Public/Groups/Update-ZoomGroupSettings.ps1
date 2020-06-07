@@ -231,7 +231,7 @@ Get-ZoomGroups | where-object {$_ -match 'Jedi'} | Update-ZoomGroupSettings @upd
 
 #>
 
-function Update-ZoomGroupSettings  {
+function Update-ZoomGroupSettings {
     [CmdletBinding()]
     param (
         [Parameter(
@@ -437,7 +437,7 @@ function Update-ZoomGroupSettings  {
         
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
@@ -447,54 +447,54 @@ function Update-ZoomGroupSettings  {
 
     process {
         $scheduleMeetingParams = @{
-            host_video                         = 'HostVideo'
-            participant_video                  = 'ParticipantVideo'
-            audio_type                         = 'AudioType'
-            join_before_host                   = 'JoinBeforeHost'
-            require_password_for_all_meetings  = 'RequirePasswordForAllMeetings'
-            force_pmi_jbh_password             = 'ForcePmiJbhPassword'
-            pstn_password_protected            = 'PstnPasswordProtected'
-            mute_upon_entry                    = 'MuteUponEntry'
-            upcoming_meeting_reminder          = 'UpcomingMeetingReminder'
+            host_video                        = 'HostVideo'
+            participant_video                 = 'ParticipantVideo'
+            audio_type                        = 'AudioType'
+            join_before_host                  = 'JoinBeforeHost'
+            require_password_for_all_meetings = 'RequirePasswordForAllMeetings'
+            force_pmi_jbh_password            = 'ForcePmiJbhPassword'
+            pstn_password_protected           = 'PstnPasswordProtected'
+            mute_upon_entry                   = 'MuteUponEntry'
+            upcoming_meeting_reminder         = 'UpcomingMeetingReminder'
         }
         
         $inMeetingParams = @{
-            e2e_encryption                     = 'Chat'
-            chat                               = 'E2eEncryption'
-            private_chat                       = 'PrivateChat'
-            auto_saving_chat                   = 'AutoSavingChat'
-            entry_exit_chime                   = 'EntryExitChime'
-            record_play_own_voice              = 'RecordPlayOwnVoice'
-            file_transfer                      = 'FileTransfer'
-            feedback                           = 'feedback'
-            post_meeting_feedback              = 'PostMeetingFeedback'
-            co_host                            = 'CoHost'
-            polling                            = 'polling'
-            attendee_on_hold                   = 'AttendeeOnHold'
-            show_meeting_control_toolbar       = 'ShowMeetingControlToolbar'
-            allow_show_zoom_windows            = 'AllowShowZoomWindows'
-            annotation                         = 'annotation'
-            whiteboard                         = 'whiteboard'
-            remote_control                     = 'RemoteControl'
-            non_verbal_feedback                = 'NonVerbalFeedback'
-            breakout_room                      = 'BreakoutRoom'
-            remote_support                     = 'RemoteSupport'
-            closed_caption                     = 'ClosedCaption'
-            far_end_camera_control             = 'FarEndCameraControl'
-            group_hd                           = 'GroupHd'
-            virtual_background                 = 'VirtualBackground'
-            alert_guest_join                   = 'AlertGuestJoin'
-            auto_answer                        = 'AutoAnswer'
-            sending_default_email_invites      = 'SendingDefaultEmailInvites'
-            use_html_format_email              = 'UseHtmlFormatEmail'
-            stereo_audio                       = 'StereoAudio'
-            original_audio                     = 'OriginalAudio'
-            show_device_list                   = 'ShowDeviceList'
-            only_host_view_device_list         = 'OnlyHostViewDeviceList'
-            screen_sharing                     = 'ScreenSharing'
-            attention_tracking                 = 'AttentionTracking'
-            waiting_room                       = 'WaitingRoom'
-            show_browser_join_link             = 'ShowBrowserJoinLink'
+            e2e_encryption                = 'Chat'
+            chat                          = 'E2eEncryption'
+            private_chat                  = 'PrivateChat'
+            auto_saving_chat              = 'AutoSavingChat'
+            entry_exit_chime              = 'EntryExitChime'
+            record_play_own_voice         = 'RecordPlayOwnVoice'
+            file_transfer                 = 'FileTransfer'
+            feedback                      = 'feedback'
+            post_meeting_feedback         = 'PostMeetingFeedback'
+            co_host                       = 'CoHost'
+            polling                       = 'polling'
+            attendee_on_hold              = 'AttendeeOnHold'
+            show_meeting_control_toolbar  = 'ShowMeetingControlToolbar'
+            allow_show_zoom_windows       = 'AllowShowZoomWindows'
+            annotation                    = 'annotation'
+            whiteboard                    = 'whiteboard'
+            remote_control                = 'RemoteControl'
+            non_verbal_feedback           = 'NonVerbalFeedback'
+            breakout_room                 = 'BreakoutRoom'
+            remote_support                = 'RemoteSupport'
+            closed_caption                = 'ClosedCaption'
+            far_end_camera_control        = 'FarEndCameraControl'
+            group_hd                      = 'GroupHd'
+            virtual_background            = 'VirtualBackground'
+            alert_guest_join              = 'AlertGuestJoin'
+            auto_answer                   = 'AutoAnswer'
+            sending_default_email_invites = 'SendingDefaultEmailInvites'
+            use_html_format_email         = 'UseHtmlFormatEmail'
+            stereo_audio                  = 'StereoAudio'
+            original_audio                = 'OriginalAudio'
+            show_device_list              = 'ShowDeviceList'
+            only_host_view_device_list    = 'OnlyHostViewDeviceList'
+            screen_sharing                = 'ScreenSharing'
+            attention_tracking            = 'AttentionTracking'
+            waiting_room                  = 'WaitingRoom'
+            show_browser_join_link        = 'ShowBrowserJoinLink'
         }
         
         $emailNotificationParams = @{
@@ -506,24 +506,24 @@ function Update-ZoomGroupSettings  {
         }
         
         $recordingParams = @{
-            local_recording                    = 'LocalRecording'
-            cloud_recording                    = 'CloudRecording'
-            record_speaker_view                = 'RecordSpeakerView'
-            record_gallery_view                = 'RecordGalleryView'
-            record_audio_file                  = 'RecordAudioFile'
-            save_chat_text                     = 'SaveChatText'
-            show_timestamp                     = 'ShowTimestamp'
-            recording_audio_transcript         = 'RecordingAudioTranscript'
-            auto_recording                     = 'AutoRecording'
-            cloud_recording_download           = 'CloudRecordingDownload'
-            cloud_recording_download_host      = 'CloudRecordingDownloadHost'
-            account_user_access_recording      = 'AccountUserAccessRecording'
-            host_delete_cloud_recording        = 'HostDeleteCloudRecording'
+            local_recording               = 'LocalRecording'
+            cloud_recording               = 'CloudRecording'
+            record_speaker_view           = 'RecordSpeakerView'
+            record_gallery_view           = 'RecordGalleryView'
+            record_audio_file             = 'RecordAudioFile'
+            save_chat_text                = 'SaveChatText'
+            show_timestamp                = 'ShowTimestamp'
+            recording_audio_transcript    = 'RecordingAudioTranscript'
+            auto_recording                = 'AutoRecording'
+            cloud_recording_download      = 'CloudRecordingDownload'
+            cloud_recording_download_host = 'CloudRecordingDownloadHost'
+            account_user_access_recording = 'AccountUserAccessRecording'
+            host_delete_cloud_recording   = 'HostDeleteCloudRecording'
         }
         
         $telephonyParams = @{
-            third_party_audio                  = 'ThirdPartyAudio'
-            audio_conference_info              = 'AudioConferenceInfo'
+            third_party_audio     = 'ThirdPartyAudio'
+            audio_conference_info = 'AudioConferenceInfo'
         }
 
         function Remove-NonPsBoundParameters {
@@ -558,7 +558,7 @@ function Update-ZoomGroupSettings  {
             'telephony'          = Remove-NonPsBoundParameters($telephonyParams)
         }
 
-        $requestBody = @{}
+        $requestBody = @{ }
         
         foreach ($key in $allObjects.Keys) {
             if ($allObjects.$key.Count -gt 0) {
@@ -574,22 +574,17 @@ function Update-ZoomGroupSettings  {
             It has been moved within the for loop as the JWT is set to expire after 30 seconds by default. 
             This way a new JWT is generated for each request and the JWT will not expire too soon.
             #>
-            $headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
 
             $request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$GroupId/settings"
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PATCH -Token $Token
 
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method PATCH
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-
-            if (-not $Passthru) {
+            if (-not $PassThru) {
                 Write-Output $response
             }
         }
     
-        if ($Passthru) {
+        if ($PassThru) {
             Write-Output $GroupId
         }
     }

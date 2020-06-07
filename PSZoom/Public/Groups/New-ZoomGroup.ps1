@@ -41,12 +41,12 @@ function New-ZoomGroup {
         
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
 
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups"
     }
@@ -59,14 +59,7 @@ function New-ZoomGroup {
                 }
 
                 $requestBody = $requestBody | ConvertTo-Json
-
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method POST
-                }
-                catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
-
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method POST -Token $Token
                 Write-Verbose "Creating group $n."
                 Write-Output $response
             }

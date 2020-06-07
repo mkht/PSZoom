@@ -42,22 +42,16 @@ function Remove-ZoomGroup {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
-
         foreach ($Id in $GroupID) {
             #Need to add API rate limiting
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$Id"
             if ($PSCmdlet.ShouldProcess($Id, "Remove")) {
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method DELETE
-                }
-                catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
                 Write-Verbose "Group $Id deleted."
                 Write-Output $response
             }

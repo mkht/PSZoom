@@ -28,7 +28,7 @@ Get-ZoomGroups | where-object {$_ -match 'Dark Side'} | Get-ZoomGroupSettings
 
 #>
 
-function Get-ZoomGroupSettings  {
+function Get-ZoomGroupSettings {
     [CmdletBinding()]
     param (
         [Parameter(
@@ -45,19 +45,13 @@ function Get-ZoomGroupSettings  {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$GroupId/settings"
-
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
         Write-Output $response   
     }
 }
