@@ -54,21 +54,15 @@ function Remove-ZoomSpecificUserAssistant {
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         foreach ($id in $UserId) {
             foreach ($aid in $AssistantId) {
                 $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$id/assistants/$aid"
-        
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method DELETE
-                } catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
-        
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
                 Write-Output $response
             }
         }

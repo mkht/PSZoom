@@ -9,7 +9,7 @@ Pro (2)
 Corp (3)
 
 .PARAMETER FirstName
-User's first namee: cannot contain more than 5 Chinese words.
+User's first name: cannot contain more than 5 Chinese words.
 
 .PARAMETER LastName
 User's last name: cannot contain more than 5 Chinese words.
@@ -42,7 +42,7 @@ The API key.
 THe API secret.
 
 .OUTPUTS
-No output. Can use Passthru switch to pass UserId to output.
+No output. Can use PassThru switch to pass UserId to output.
 
 .EXAMPLE`
 Update a user's name.
@@ -98,9 +98,9 @@ function Update-ZoomUser {
         [bool]$UsePmi,
         
         [Parameter(ValueFromPipelineByPropertyName = $True)]
-        [ValidateScript({
+        [ValidateScript( {
                 (Get-ZoomTimeZones).Contains($_)
-        })]
+            })]
         [string]$Timezone,
         
         [Parameter(ValueFromPipelineByPropertyName = $True)]
@@ -133,8 +133,8 @@ function Update-ZoomUser {
     )
     
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -191,13 +191,8 @@ function Update-ZoomUser {
 
             $RequestBody = $RequestBody | ConvertTo-Json
 
-            if ($pscmdlet.ShouldProcess) {
-                try {
-                    Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $RequestBody -Method PATCH
-                }
-                catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
+            if ($PSCmdlet.ShouldProcess) {
+                Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $RequestBody -Method PATCH -Token $Token
         
                 if (-not $PassThru) {
                     Write-Output $response

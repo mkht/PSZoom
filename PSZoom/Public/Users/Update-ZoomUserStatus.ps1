@@ -15,7 +15,7 @@ The API key.
 .PARAMETER ApiSecret
 THe API secret.
 .OUTPUTS
-No output. Can use Passthru switch to pass the UserId as an output.
+No output. Can use PassThru switch to pass the UserId as an output.
 .EXAMPLE`
 Update-ZoomUserStatus -UserId helpdesk@lawfirm.com
 .LINK
@@ -54,8 +54,8 @@ function Update-ZoomUserStatus {
     )
     
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -67,16 +67,13 @@ function Update-ZoomUserStatus {
     
             $requestBody = $requestBody | ConvertTo-Json
     
-            if ($PScmdlet.ShouldProcess($user, $Action)) {
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $requestBody -Method PUT
-                } catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
+            if ($PSCmdlet.ShouldProcess($user, $Action)) {
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PUT -Token $Token
 
                 if ($PassThru) {
                     Write-Output $UserId
-                } else {
+                }
+                else {
                     Write-Output $response
                 }
                 

@@ -9,7 +9,7 @@ Delete a user on your account.
 .PARAMETER Action
 Delete action options:
 disassociate - Disassociate a user. This is the default.
-delete - Permanently dlete a user.
+delete - Permanently delete a user.
 Note: To delete pending user in the account, use disassociate.
 
 .PARAMETER TransferEmail
@@ -31,7 +31,7 @@ The Api Key.
 The Api Secret.
 
 .OUTPUTS
-No output. Can use Passthru switch to pass UserId to output.
+No output. Can use PassThru switch to pass UserId to output.
 
 .EXAMPLE
 Remove-ZoomUser 'sjackson@lawfirm.com' -action 'delete' -TransferEmail 'jsmith@lawfirm.com' -TransferMeeting
@@ -42,7 +42,7 @@ https://marketplace.zoom.us/docs/api-reference/zoom-api/users/userdelete
 #>
 
 function Remove-ZoomUser {
-    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
     param (
         [Parameter(
             Mandatory = $True, 
@@ -79,12 +79,12 @@ function Remove-ZoomUser {
         [ValidateNotNullOrEmpty()]
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Headers with JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -111,16 +111,13 @@ function Remove-ZoomUser {
             
             $request.Query = $query.ToString().ToLower()
             
-            if ($PScmdlet.ShouldProcess($user, 'Remove')) {
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method DELETE
-                } catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
+            if ($PSCmdlet.ShouldProcess($user, 'Remove')) {
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
 
-                if ($Passthru) {
+                if ($PassThru) {
                     Write-Output $UserId
-                } else {
+                }
+                else {
                     Write-Output $response
                 }
                 

@@ -19,7 +19,7 @@ The API key.
 THe API secret.
 
 .OUTPUTS
-No output. Can use Passthru switch to pass the UserId as an output.
+No output. Can use PassThru switch to pass the UserId as an output.
 
 .EXAMPLE
 Update-ZoomUserPassword -UserId helpdesk@lawfirm.com -Password 'Zoompassword'
@@ -29,7 +29,7 @@ https://marketplace.zoom.us/docs/api-reference/zoom-api/users/userpassword
 
 #>
 
-function Update-ZoomUserpassword {    
+function Update-ZoomUserPassword {    
     [CmdletBinding(SupportsShouldProcess = $True)]
     Param(
         [Parameter(
@@ -47,7 +47,7 @@ function Update-ZoomUserpassword {
             ValueFromPipelineByPropertyName = $True,
             Position = 1
         )]
-        [ValidateLength(8,31)]
+        [ValidateLength(8, 31)]
         [string]$Password,
 
         [ValidateNotNullOrEmpty()]
@@ -60,13 +60,13 @@ function Update-ZoomUserpassword {
     )
     
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
-        foreach ($user in $UserId){
-        $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$user/password"
+        foreach ($user in $UserId) {
+            $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$user/password"
             $requestBody = @{
                 'password' = $Password
             }
@@ -75,8 +75,9 @@ function Update-ZoomUserpassword {
 
             if ($PSCmdlet.ShouldProcess) {
                 try {
-                    Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $requestBody -Method PUT
-                } catch {
+                    Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PUT -Token $Token
+                }
+                catch {
                     Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
                 }
                 if (-not $PassThru) {

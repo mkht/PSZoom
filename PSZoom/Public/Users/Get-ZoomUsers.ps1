@@ -141,8 +141,8 @@ function Get-ZoomUsers {
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api key/secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -155,39 +155,36 @@ function Get-ZoomUsers {
         if ($PSBoundParameters.ContainsKey('RoleId')) {
             $query.Add('role_id', $RoleId)
         }
-        
-        $Request.Query = $query.ToString()
 
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
+        $Request.Query = $query.ToString()
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
 
         if ($FullApiResponse) {
             Write-Output $response
-        } elseif ($AllPages) {
-            $params = @{}
+        }
+        elseif ($AllPages) {
+            $params = @{ }
             $allUsers = @()
 
-            if ($PSBoundParameters.ContainsKey('Status')){
+            if ($PSBoundParameters.ContainsKey('Status')) {
                 $params.Add('status', $Status) 
             }
 
-            if ($PSBoundParameters.ContainsKey('RoleId')){
+            if ($PSBoundParameters.ContainsKey('RoleId')) {
                 $params.Add('role_id', $RoleId) 
             }
             
             $pageCount = (Get-ZoomUsers -PageSize 300 @params -FullApiResponse).page_count
 
-            while ($pageCount -gt 0){
+            while ($pageCount -gt 0) {
                 Write-Verbose 'Adding users from page $pageCount'
                 $allusers += (Get-ZoomUsers -PageNumber $pageCount -PageSize 300 @params)
                 $pageCount--
             }
 
             Write-Output $allUsers
-        } else {
+        }
+        else {
             Write-Output $response.Users
         }
     }

@@ -201,7 +201,7 @@ Call Out Countries/Regions.
 Show international numbers link on the invitation email in Tsp.
 
 .OUTPUTS
-No output. Can use Passthru switch to pass the UserId as an output.
+No output. Can use PassThru switch to pass the UserId as an output.
 
 .LINK
 https://marketplace.zoom.us/docs/api-reference/zoom-api/users/usersettingsupdate
@@ -582,7 +582,7 @@ function Update-ZoomUserSettings {
             HelpMessage = 'A specified number of days of auto delete cloud recordings.', 
             ValueFromPipelineByPropertyName = $True
         )]
-        [ValidateRange(0,60)]
+        [ValidateRange(0, 60)]
         [Alias('auto_delete_cmr_days')]
         [int]$AutoDeleteCmrDays, 
 
@@ -680,8 +680,8 @@ function Update-ZoomUserSettings {
     )
     
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -689,81 +689,81 @@ function Update-ZoomUserSettings {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$user/settings"
 
             $ScheduleMeeting = @{
-                'host_video'                          = 'HostVideo'
-                'participants_video'                  = 'ParticipantsVideo'
-                'audio_type'                          = 'AudioType'
-                'join_before_host'                    = 'JoinBeforeHost'
-                'force_pmi_jbh_password'              = 'ForcePmiJbhPassword'
-                'pstn_password_protected'             = 'PstnPasswordProtected'
-                'use_pmi_for_scheduled_meetings'      = 'UsePmiForScheduledMeetings'
-                'use_pmi_for_instant_meetings'        = 'UsePmiForInstantMeetings'
+                'host_video'                     = 'HostVideo'
+                'participants_video'             = 'ParticipantsVideo'
+                'audio_type'                     = 'AudioType'
+                'join_before_host'               = 'JoinBeforeHost'
+                'force_pmi_jbh_password'         = 'ForcePmiJbhPassword'
+                'pstn_password_protected'        = 'PstnPasswordProtected'
+                'use_pmi_for_scheduled_meetings' = 'UsePmiForScheduledMeetings'
+                'use_pmi_for_instant_meetings'   = 'UsePmiForInstantMeetings'
             }
 
             $InMeeting = @{    
-                'e2e_encryption'                      = 'E2eEncryption'
-                'chat'                                = 'Chat' 
-                'private_chat'                        = 'PrivateChat' 
-                'auto_saving_chat'                    = 'AutoSavingChat' 
-                'entry_exit_chim'                     = 'EntryExitChim' 
-                'record_play_voice'                   = 'RecordPlayVoice'
-                'file_transfer'                       = 'FileTransfer' 
-                'feedback'                            = 'Feedback' 
-                'co_host'                             = 'CoHost' 
-                'polling'                             = 'Polling' 
-                'attendee_on_hold'                    = 'AttendeeOnHold' 
-                'annotation'                          = 'Annotation' 
-                'remote_control'                      = 'RemoteControl' 
-                'non_verbal_feedback'                 = 'NonVerbalFeedback' 
-                'breakout_room'                       = 'BreakoutRoom' 
-                'remote_support'                      = 'RemoteSupport' 
-                'closed_caption'                      = 'ClosedCaption' 
-                'group_hd'                            = 'GroupHd' 
-                'virtual_background'                  = 'VirtualBackground' 
-                'far_end_camera_control '             = 'FarEndCameraControl' 
-                'share_dual_camera'                   = 'ShareDualCamera' 
-                'attention_tracking'                  = 'AttentionTracking' 
-                'waiting_room'                        = 'WaitingRoom' 
-                'allow_live_streaming'                = 'AllowLiveStreaming'
-                'workplace_by_facebook'               = 'WorkplaceByFacebook'
-                'custom_live_streaming'               = 'CustomLiveStreaming'
-                'custom_service_instructions'         = 'CustomServiceInstructions'
+                'e2e_encryption'              = 'E2eEncryption'
+                'chat'                        = 'Chat' 
+                'private_chat'                = 'PrivateChat' 
+                'auto_saving_chat'            = 'AutoSavingChat' 
+                'entry_exit_chim'             = 'EntryExitChim' 
+                'record_play_voice'           = 'RecordPlayVoice'
+                'file_transfer'               = 'FileTransfer' 
+                'feedback'                    = 'Feedback' 
+                'co_host'                     = 'CoHost' 
+                'polling'                     = 'Polling' 
+                'attendee_on_hold'            = 'AttendeeOnHold' 
+                'annotation'                  = 'Annotation' 
+                'remote_control'              = 'RemoteControl' 
+                'non_verbal_feedback'         = 'NonVerbalFeedback' 
+                'breakout_room'               = 'BreakoutRoom' 
+                'remote_support'              = 'RemoteSupport' 
+                'closed_caption'              = 'ClosedCaption' 
+                'group_hd'                    = 'GroupHd' 
+                'virtual_background'          = 'VirtualBackground' 
+                'far_end_camera_control '     = 'FarEndCameraControl' 
+                'share_dual_camera'           = 'ShareDualCamera' 
+                'attention_tracking'          = 'AttentionTracking' 
+                'waiting_room'                = 'WaitingRoom' 
+                'allow_live_streaming'        = 'AllowLiveStreaming'
+                'workplace_by_facebook'       = 'WorkplaceByFacebook'
+                'custom_live_streaming'       = 'CustomLiveStreaming'
+                'custom_service_instructions' = 'CustomServiceInstructions'
             }
 
             $EmailNotification = @{    
-                'jbh_reminder'                        = 'bhReminder' 
-                'cancel_meeting_reminder'             = 'ancelMeetingReminder'
-                'alternative_host_reminder'           = 'lternativeHostReminder'
-                'schedule_for_reminder'               = 'cheduleForReminder'
+                'jbh_reminder'              = 'bhReminder' 
+                'cancel_meeting_reminder'   = 'ancelMeetingReminder'
+                'alternative_host_reminder' = 'lternativeHostReminder'
+                'schedule_for_reminder'     = 'cheduleForReminder'
             }
                 
             $Recording = @{    
-                'local_recording'                     = 'LocalRecording'
-                'cloud_recording'                     = 'CloudRecording'
-                'record_speaker_view'                 = 'RecordSpeakerView'
-                'record_gallery_view'                 = 'RecordGalleryView'
-                'record_audio_file'                   = 'RecordAudioFile'
-                'save_chat_text'                      = 'SaveChatText'
-                'show_timestamp'                      = 'ShowTimestamp'
-                'recording_audio_transcript'          = 'RecordingAudioTranscrip'
-                'auto_recording'                      = 'AutoRecording'
-                'host_pause_stop_recording '          = 'HostPauseStopRecording'
-                'auto_delete_cmr'                     = 'AutoDeleteCmr'
-                'auto_delete_cmr_days'                = 'AutoDeleteCmrDay'
+                'local_recording'            = 'LocalRecording'
+                'cloud_recording'            = 'CloudRecording'
+                'record_speaker_view'        = 'RecordSpeakerView'
+                'record_gallery_view'        = 'RecordGalleryView'
+                'record_audio_file'          = 'RecordAudioFile'
+                'save_chat_text'             = 'SaveChatText'
+                'show_timestamp'             = 'ShowTimestamp'
+                'recording_audio_transcript' = 'RecordingAudioTranscrip'
+                'auto_recording'             = 'AutoRecording'
+                'host_pause_stop_recording ' = 'HostPauseStopRecording'
+                'auto_delete_cmr'            = 'AutoDeleteCmr'
+                'auto_delete_cmr_days'       = 'AutoDeleteCmrDay'
             }
 
             $Telephony = @{    
-                'third_party_audio '                  = 'ThirdPartyAudio'
-                'audio_conference_info'               = 'AudioConferenceInfo'
-                'show_international_numbers_link'     = 'ShowInternationalNumbersLink'
+                'third_party_audio '              = 'ThirdPartyAudio'
+                'audio_conference_info'           = 'AudioConferenceInfo'
+                'show_international_numbers_link' = 'ShowInternationalNumbersLink'
             }
 
             $Feature = @{    
-                'meeting_capacity'                    = 'MeetingCapacity'
-                'large_meeting'                       = 'LargeMeeting'
-                'large_meeting_capacity'              = 'LargeMeetingCapacity'
-                'webinar'                             = 'Webinar'
-                'webinar_capacity'                    = 'WebinarCapacity'
-                'zoom_phone'                          = 'ZoomPhone'
+                'meeting_capacity'       = 'MeetingCapacity'
+                'large_meeting'          = 'LargeMeeting'
+                'large_meeting_capacity' = 'LargeMeetingCapacity'
+                'webinar'                = 'Webinar'
+                'webinar_capacity'       = 'WebinarCapacity'
+                'zoom_phone'             = 'ZoomPhone'
             }
 
             $Tsp = @{
@@ -779,11 +779,11 @@ function Update-ZoomUserSettings {
                 )
 
                 process {
-                    $NewObj = @{}
+                    $NewObj = @{ }
             
                     foreach ($Key in $Obj.Keys) {
-                        if ($Parameters.ContainsKey($Obj.$Key)){
-                            $Newobj.Add($Key, (get-variable $Obj.$Key).value)
+                        if ($Parameters.ContainsKey($Obj.$Key)) {
+                            $NewObj.Add($Key, (get-variable $Obj.$Key).value)
                         }
                     }
             
@@ -800,16 +800,16 @@ function Update-ZoomUserSettings {
             $Tsp = Remove-NonPSBoundParameters($Tsp)
 
             $allObjects = @{
-                'schedule_meeting'     = $ScheduleMeeting
-                'in_meeting'           = $InMeeting
-                'email_notification'   = $EmailNotification
-                'recording'            = $Recording
-                'telephony'            = $Telephony
-                'feature'              = $Feature
-                'tsp'                  = $Tsp
+                'schedule_meeting'   = $ScheduleMeeting
+                'in_meeting'         = $InMeeting
+                'email_notification' = $EmailNotification
+                'recording'          = $Recording
+                'telephony'          = $Telephony
+                'feature'            = $Feature
+                'tsp'                = $Tsp
             }
 
-            $requestBody = @{}
+            $requestBody = @{ }
         
             foreach ($Key in $allObjects.Keys) {
                 if ($allObjects.$Key.Count -gt 0) {
@@ -819,12 +819,8 @@ function Update-ZoomUserSettings {
 
             $requestBody = $requestBody | ConvertTo-Json
 
-            if ($pscmdlet.ShouldProcess) {
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $requestBody -Method Patch
-                } catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
+            if ($PSCmdlet.ShouldProcess) {
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PATCH -Token $Token
 
                 if (-not $PassThru) {
                     Write-Output $response

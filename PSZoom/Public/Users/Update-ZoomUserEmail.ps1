@@ -19,7 +19,7 @@ The Api Key.
 The Api Secret.
 
 .OUTPUTS
-No output. Can use Passthru switch to pass UserId to output.
+No output. Can use PassThru switch to pass UserId to output.
 
 .EXAMPLE
 Update-ZoomUserEmail lskywalker@thejedi.com
@@ -46,7 +46,7 @@ function Update-ZoomUserEmail {
             Position = 1,
             ValueFromPipelineByPropertyName = $True
         )]
-        [ValidateLength(0,128)]
+        [ValidateLength(0, 128)]
         [string]$Email,
 
         [ValidateNotNullOrEmpty()]
@@ -55,12 +55,12 @@ function Update-ZoomUserEmail {
         [ValidateNotNullOrEmpty()]
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -72,11 +72,13 @@ function Update-ZoomUserEmail {
         $requestBody = $requestBody | ConvertTo-Json
 
         try {
-            Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method PUT
-        } catch {
+            Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PUT -Token $Token
+        }
+        catch {
             Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        } finally {
-            if ($Passthru) {
+        }
+        finally {
+            if ($PassThru) {
                 Write-Output $UserId
             }
         }
