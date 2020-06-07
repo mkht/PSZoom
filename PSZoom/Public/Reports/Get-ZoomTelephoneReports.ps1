@@ -18,7 +18,7 @@ The number of records returned within a single API call.
 .PARAMETER PageNumber
 The current page number of returned records.
 
-.PARAMETER YearTiDate
+.PARAMETER YearToDate
 Use this switch to automatically retrieve all entries for the calendar year.
 
 .PARAMETER Type
@@ -36,7 +36,7 @@ Get-ZoomTelephoneReports -from '2019-07-01' -to '2019-07-31' -page 1 -pagesize 3
 Get-ZoomTelephoneReports -ytd
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 #>
 
@@ -91,37 +91,38 @@ function Get-ZoomTelephoneReports {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 90
     }
 
     process {
         if ($YearToDate) {
-                [int]$Requests = 0
-                $MonthRanges = (Get-YtdMonthlyDateRanges)
-                $AllTelephoneReports = New-Object System.Collections.Generic.List[System.Object]
+            [int]$Requests = 0
+            $MonthRanges = (Get-YtdMonthlyDateRanges)
+            $AllTelephoneReports = New-Object System.Collections.Generic.List[System.Object]
 
-                foreach ($Key in $MonthRanges.Keys) {
-                    $TotalPages = (Get-ZoomTelephoneReports -from "$($MonthRanges.$Key.begin)" -to "$($MonthRanges.$Key.end)" -pagesize 300 -pagenumber 1).page_count
+            foreach ($Key in $MonthRanges.Keys) {
+                $TotalPages = (Get-ZoomTelephoneReports -from "$($MonthRanges.$Key.begin)" -to "$($MonthRanges.$Key.end)" -pagesize 300 -pagenumber 1).page_count
                     
-                    for ($i = 1; $i -le $TotalPages; $i++) {
-                        if (($Requests % 10) -eq 0) {  #Zoom limits the number of requests to 10 per second
-                            Start-Sleep -seconds 2
-                        }
-            
-                        $CurrentPage = (Get-ZoomTelephoneReports -from "$($MonthRanges.$Key.begin)" -to "$($MonthRanges.$Key.end)" -pagesize 300 -pagenumber $i).telephony_usage
-                        
-                        foreach ($Entry in $CurrentPage) {
-                            $AllTelephoneReports.Add($Entry)
-                        }
-            
-                        $Requests++
+                for ($i = 1; $i -le $TotalPages; $i++) {
+                    if (($Requests % 10) -eq 0) {
+                        #Zoom limits the number of requests to 10 per second
+                        Start-Sleep -seconds 2
                     }
+            
+                    $CurrentPage = (Get-ZoomTelephoneReports -from "$($MonthRanges.$Key.begin)" -to "$($MonthRanges.$Key.end)" -pagesize 300 -pagenumber $i).telephony_usage
+                        
+                    foreach ($Entry in $CurrentPage) {
+                        $AllTelephoneReports.Add($Entry)
+                    }
+            
+                    $Requests++
                 }
-                write-output $AllTelephoneReports
-        } else {
+            }
+            Write-Output $AllTelephoneReports
+        }
+        else {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/report/telephone"
-            $RequestBody = @{ }
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
             $query.Add('type', $Type)
             $query.Add('from', $From)
@@ -130,12 +131,7 @@ function Get-ZoomTelephoneReports {
             $query.Add('page_number', $PageNumber)
             $Request.Query = $query.ToString()
 
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $RequestBody -Method GET
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-            
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
             Write-Output $response
         }
     }
