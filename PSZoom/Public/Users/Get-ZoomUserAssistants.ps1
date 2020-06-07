@@ -19,7 +19,7 @@ The Api Secret.
 Get-ZoomUserAssistants jmcevoy@lawfirm.com
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 
 #>
@@ -33,7 +33,7 @@ function Get-ZoomUserAssistants {
             ValueFromPipeline = $True,
             ValueFromPipelineByPropertyName = $True
         )]
-        [Alias('Email', 'EmailAddress', 'Id', 'user_id', 'userids', 'ids', 'emailaddresses','emails')]
+        [Alias('Email', 'EmailAddress', 'Id', 'user_id', 'userids', 'ids', 'emailaddresses', 'emails')]
         [string[]]$UserId,
 
         [ValidateNotNullOrEmpty()]
@@ -44,20 +44,14 @@ function Get-ZoomUserAssistants {
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         foreach ($id in $UserId) {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$Id/assistants"
-
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-    
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
             Write-Output $response
         }
     }

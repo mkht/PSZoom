@@ -37,7 +37,7 @@ Get-ZoomActiveInactiveHostReports -from '2019-07-01' -to '2019-07-31' -page 1 -p
 Get-ZoomActiveInactiveHostReports -type inactive -all
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 #>
 
@@ -88,8 +88,8 @@ function Get-ZoomActiveInactiveHostReports {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 90
     }
 
     process {
@@ -102,7 +102,8 @@ function Get-ZoomActiveInactiveHostReports {
                 $TotalPages = (Get-ZoomActiveInactiveHostReports -from "$($monthRanges.$key.begin)" -to "$($monthRanges.$key.end)" -pagesize 300 -pagenumber 1 -type active).page_count
                 
                 for ($i = 1; $i -le $TotalPages; $i++) {
-                    if (($requests % 10) -eq 0) { #Zoom limits the number of requests to 10 per second
+                    if (($requests % 10) -eq 0) {
+                        #Zoom limits the number of requests to 10 per second
                         Start-Sleep -seconds 2
                     }
         
@@ -115,8 +116,9 @@ function Get-ZoomActiveInactiveHostReports {
                     $requests++
                 }
             }
-            write-output $allReports
-        } else {
+            Write-Output $allReports
+        }
+        else {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/report/users"
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
             $query.Add('from', $From)
@@ -125,13 +127,8 @@ function Get-ZoomActiveInactiveHostReports {
             $query.Add('page_number', $PageNumber)
             $query.Add('type', $Type)
             $Request.Query = $query.ToString()
-            
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-            
+
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
             Write-Output $response
         }
     }

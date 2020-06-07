@@ -9,7 +9,7 @@ The meeting ID.
 .PARAMETER Title
 Poll title.
 .PARAMETER Questions
-Array of questions. Requrires three values:
+Array of questions. Requires three values:
 [string]name - Question name
 [string]type - Question type
     single - Single choice
@@ -75,13 +75,13 @@ function Update-ZoomMeetingPoll {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId/polls/$PollId"
-        $requestBody = @{}
+        $requestBody = @{ }
 
         if ($PSBoundParameters.ContainsKey('Title')) {
             $requestBody.Add('title', $Title)
@@ -93,12 +93,7 @@ function Update-ZoomMeetingPoll {
 
         $requestBody = ConvertTo-Json $requestBody -Depth 10 #Uses -Depth because the questions.answers array is flattened without it.
 
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method PUT
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PUT -Token $Token
         Write-Output $response
     }
 }

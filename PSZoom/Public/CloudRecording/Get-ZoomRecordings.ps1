@@ -7,8 +7,8 @@ Get all the recordings from a user.
 When a user records a meeting by choosing the Record to the Cloud option, the video, audio, 
 and chat text are recorded in the Zoom cloud.
 
-Use this API to list all Cloud Recordingsof a user. To access a password protected cloud recording, add an 
-“access_token” parameter to the download URL and provide  as the value of the “access_token”. 
+Use this API to list all Cloud Recordings of a user. To access a password protected cloud recording, add an 
+"access_token" parameter to the download URL and provide  as the value of the “access_token”. 
 
 .PARAMETER UserId
 The user ID or email address of the user. For user-level apps, pass `me` as the value for userId.
@@ -39,8 +39,8 @@ Start date in 'yyyy-mm-dd' format. (Within 6 month range).
 
 .PARAMETER TrashType
 The type of Cloud recording that you would like to retrieve from the trash.
-NeetingRecordings: List all meeting recordings from the trash.  
-RrecordingFile: List all individual recording files from the trash. 
+MeetingRecordings: List all meeting recordings from the trash.  
+RecordingFile: List all individual recording files from the trash. 
 
 .OUTPUTS
 An object with the Zoom API response.
@@ -97,8 +97,8 @@ function Get-ZoomRecordings {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -135,14 +135,7 @@ function Get-ZoomRecordings {
             } 
             
             $Request.Query = $query.ToString()
-
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $RequestBody -Method GET
-            }
-            catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-    
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
             Write-Output $response
         }
     }

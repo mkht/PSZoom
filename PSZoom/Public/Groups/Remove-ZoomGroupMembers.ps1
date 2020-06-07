@@ -7,7 +7,7 @@ Delete members from groups under your account.
 The default Zoom Api being used here supports deleting one member from one group.
 This function expands off that, allowing multiple members to be deleted from multiple groups.
 Prerequisite: Pro, Business, or Education account.
-.PARAMETER GroupId
+.PARAMETER GroupIds
 This is the ID of the group. Not to be confused with MemberId. This also has the alias 'id'. 
 This is for better pipeline support with other functions. Other aliases include 'group_id' and 'group'.
 .PARAMETER MemberIds
@@ -27,7 +27,7 @@ Remove a user from all groups that include the word Training in the name.
 #>
 
 function Remove-ZoomGroupMembers {
-    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
     param (
         [Parameter(
             Mandatory = $True, 
@@ -51,8 +51,8 @@ function Remove-ZoomGroupMembers {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -61,12 +61,14 @@ function Remove-ZoomGroupMembers {
             foreach ($MemberId in $MemberIds) {
                 $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$GroupId/members/$MemberId"
                 
-                if ($PScmdlet.ShouldProcess) {
+                if ($PSCmdlet.ShouldProcess) {
                     try {
-                        $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method DELETE
-                    } catch {
+                        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
+                    }
+                    catch {
                         Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                    } finally {
+                    }
+                    finally {
                         Write-Verbose "Removed $MemberId from $GroupId."
                         Write-Output $response
                     }

@@ -58,7 +58,7 @@ Thursday (5)
 Friday (6)
 Saturday (7)
 .PARAMETER EndTimes
-Select how many timse the meeting will recur before it is canceled. (Cannot be used with "EndDateTime".)
+Select how many times the meeting will recur before it is canceled. (Cannot be used with "EndDateTime".)
 .PARAMETER EndDateTime
 Select a date the meeting will recur before it is canceled. Should be in UTC time, such as 2017-11-25T12:00:00Z. (Cannot be used with "EndTimes".)
 .PARAMETER Settings
@@ -109,10 +109,10 @@ Enable waiting room
 List of global dial-in countries
 .PARAMETER ContactName
 Contact name for registration
-.PARAMETER ContacEmail
+.PARAMETER ContactEmail
 Contact email for registration
 .PARAMETER MeetingAuthentication
-Only authenticatd users can join meetings.
+Only authenticated users can join meetings.
 .PARAMETER AuthenticationOption
 Meeting authentication option id.
 .PARAMETER AuthenticationDomains
@@ -614,26 +614,19 @@ function New-ZoomMeeting {
     
     begin {
         $Uri = "https://api.zoom.us/v2/users/$userId/meetings"
-  
-        #Get Zoom Api Credentials
-        if (-not $ApiKey -or -not $ApiSecret) {
-            $ApiCredentials = Get-ZoomApiCredentials
-            $ApiKey = $ApiCredentials.ApiKey
-            $ApiSecret = $ApiCredentials.ApiSecret
-        }
-  
-        #Generate Headers with JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
     
     process {
         $Type = switch ($PSCmdlet.ParameterSetName) {
-            'Instant'               { 1 }
-            'ScheduledMeeting'      { 2 }
+            'Instant' { 1 }
+            'ScheduledMeeting' { 2 }
             'RecurrenceNoFixedTime' { 3 }
-            'RecurrenceByDay'       { 8 }
-            'RecurrenceByWeek'      { 8 }
-            'RecurrenceByMonthDay'  { 8 }
+            'RecurrenceByDay' { 8 }
+            'RecurrenceByWeek' { 8 }
+            'RecurrenceByMonthDay' { 8 }
             'RecurrenceByMonthWeek' { 8 }
         }
     
@@ -690,12 +683,12 @@ function New-ZoomMeeting {
         
         #This is for recurrence parameter sets.
         if (('RecurrenceByDay', 'RecurrenceByWeek', 'RecurrenceByMonthDay', 'RecurrenceByMonthWeek').Contains($PSCmdlet.ParameterSetName)) {    
-            $Recurrence = @{}
+            $Recurrence = @{ }
 
             $RecurrenceType = switch ($PSCmdlet.ParameterSetName) {
-                'RecurrenceByDay'       { 1 }
-                'RecurrenceByWeek'      { 2 }
-                'RecurrenceByMonthDay'  { 3 }
+                'RecurrenceByDay' { 1 }
+                'RecurrenceByWeek' { 2 }
+                'RecurrenceByMonthDay' { 3 }
                 'RecurrenceByMonthWeek' { 3 }
             }
 
@@ -704,7 +697,8 @@ function New-ZoomMeeting {
                 if ($RepeatInterval -gt 3) {
                     Throw 'Recurrences by month have a max value of 3.'
                 }
-            } elseif ($PSCmdlet.ParameterSetName -eq 'RecurrenceByWeek') {
+            }
+            elseif ($PSCmdlet.ParameterSetName -eq 'RecurrenceByWeek') {
                 if ($RepeatInterval -gt 12) {
                     Throw 'Recurrences by week have a max value of 12.'
                 }
@@ -714,36 +708,36 @@ function New-ZoomMeeting {
                 $WeeklyDays[$WeeklyDays.IndexOf($_)] | ForEach-Object {
                     #Loops through each day and changes it because this parameter is an array
                     $WeeklyDays[$WeeklyDays.IndexOf($_)] = switch ($_) {
-                        'Sunday'    { 1 }
-                        'Monday'    { 2 }
-                        'Tuesday'   { 3 }
+                        'Sunday' { 1 }
+                        'Monday' { 2 }
+                        'Tuesday' { 3 }
                         'Wednesday' { 4 }
-                        'Thursday'  { 5 }
-                        'Friday'    { 6 }
-                        'Saturday'  { 7 }
+                        'Thursday' { 5 }
+                        'Friday' { 6 }
+                        'Saturday' { 7 }
                     }
                 }
             }
 
             if ($PSBoundParameters.ContainsKey('MonthlyWeek')) {
                 $MonthlyWeek = switch ($MonthlyWeek) {
-                    'LastWeek'   { -1 }
-                    'FirstWeek'  { 1 }
+                    'LastWeek' { -1 }
+                    'FirstWeek' { 1 }
                     'SecondWeek' { 2 }
-                    'ThirdWeek'  { 3 }
+                    'ThirdWeek' { 3 }
                     'FourthWeek' { 4 }
                 }
             }
 
             if ($PSBoundParameters.ContainsKey('MonthlyWeekDay')) {
                 $MonthlyWeekDay = switch ($MonthlyWeekDay) {
-                    'Sunday'    { 1 }
-                    'Monday'    { 2 }
-                    'Tuesday'   { 3 }
+                    'Sunday' { 1 }
+                    'Monday' { 2 }
+                    'Tuesday' { 3 }
                     'Wednesday' { 4 }
-                    'Thursday'  { 5 }
-                    'Friday'    { 6 }
-                    'Saturday'  { 7 }
+                    'Thursday' { 5 }
+                    'Friday' { 6 }
+                    'Saturday' { 7 }
                 }
             }
             
@@ -756,16 +750,18 @@ function New-ZoomMeeting {
             #Sets $EndTimes to 1 if no value is provided for $EndTimes or $EndDateTime. This is in line with Zoom's documentaiton which declares a default value for EndTimes.
             if ($PSBoundParameters.ContainsKey('EndTimes')) {
                 $Recurrence.Add('end_times', $EndTimes)
-            } elseif ($PSBoundParameters.ContainsKey('EndDateTime')) {
+            }
+            elseif ($PSBoundParameters.ContainsKey('EndDateTime')) {
                 $Recurrence.Add('end_date_time', $EndDateTime)
-            } else {
+            }
+            else {
                 $EndTimes = 1
                 $Recurrence.Add('end_times', $EndTimes)
             }
 
             #These values are mandatory depending on parameter set used
             #For some reason, Zoom requires this to be a string of integers separated by a comma, instead of an array.
-            if ($PSBoundParameters.ContainsKey('WeeklyDays')){
+            if ($PSBoundParameters.ContainsKey('WeeklyDays')) {
                 $Recurrence.Add('weekly_days', (ConvertTo-StringWithCommas($WeeklyDays)))
             }
 
@@ -788,16 +784,16 @@ function New-ZoomMeeting {
         if ($PSBoundParameters.ContainsKey('ApprovalType')) {
             $ApprovalType = switch ($ApprovalType) {
                 'Automatic' { 0 }
-                'Manual'    { 1 }
-                'None'      { 2 }
-                Default     { 2 }
+                'Manual' { 1 }
+                'None' { 2 }
+                Default { 2 }
             }
         }
   
         if ($PSBoundParameters.ContainsKey('RegistrationType')) {
             $RegistrationType = switch ($RegistrationType) {
-                'RegisterOnceAndAttendAll'        { 1 }
-                'RegisterForEachOccurence'        { 2 }
+                'RegisterOnceAndAttendAll' { 1 }
+                'RegisterForEachOccurence' { 2 }
                 'RegisterOnceAndChooseOccurences' { 3 }
             }
         }
@@ -809,7 +805,7 @@ function New-ZoomMeeting {
             'auto_recording'                 = 'AutoRecording'
             'close_registration'             = 'CloseRegistration'
             'cn_meeting'                     = 'CNMeeting'
-            'contact_email'                  = 'ContacEmail'
+            'contact_email'                  = 'ContactEmail'
             'contact_name'                   = 'ContactName'
             'enforce_login'                  = 'Enfogin'
             'enforce_login_domains'          = 'EnforceLoginDomains'
@@ -839,14 +835,7 @@ function New-ZoomMeeting {
         #### Misc Settings End #####
 
         $requestBody = ConvertTo-Json $requestBody -Depth 10
-
-        try {
-            $response = Invoke-RestMethod -Uri $Uri -Headers $Headers -Body $requestBody -Method Post
-        }
-        catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-
+        $response = Invoke-ZoomApiRestMethod -Uri $Uri -Body $requestBody -Method POST -Token $Token
         Write-Output $response
     }
 }

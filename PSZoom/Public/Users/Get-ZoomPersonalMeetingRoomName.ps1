@@ -1,10 +1,10 @@
 <#
 
 .SYNOPSIS
-Check if the user’s personal meeting room name exists.
+Check if the user's personal meeting room name exists.
 
 .DESCRIPTION
-Check if the user’s personal meeting room name exists.
+Check if the user's personal meeting room name exists.
 
 .PARAMETER VanityName
 Personal meeting room name.
@@ -47,8 +47,8 @@ function Get-ZoomPersonalMeetingRoomName {
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -58,14 +58,8 @@ function Get-ZoomPersonalMeetingRoomName {
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
             $query.Add('vanity_name', $VanityName)
             $Request.Query = $query.ToString()
-        
-    
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Method GET
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-    
+
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
             Write-Output $response
         }
     }

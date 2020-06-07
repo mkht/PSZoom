@@ -4,7 +4,7 @@
 Add assistants to user(s).
 
 .DESCRIPTION
-Add assistants to user(s). Assistants are the users to whom the current user has assigned scheduling privilege on the user’s behalf.
+Add assistants to user(s). Assistants are the users to whom the current user has assigned scheduling privilege on the user's behalf.
 
 .PARAMETER UserId
 The user ID or email address.
@@ -30,14 +30,14 @@ Add assistants to a user.
 Add-ZoomUserAssistants -UserId  'okenobi@thejedi.com' -AssistantId '123456789','987654321'
 
 .EXAMPLE
-Add assitant to multiple users.
+Add assistant to multiple users.
 Add-ZoomUserAssistants -UserId  'okenobi@thejedi.com', 'dsidious@thesith.com' -AssistantId 'dvader@thesith.com',
 
 .LINK
 https://marketplace.zoom.us/docs/api-reference/zoom-api/users/userassistantcreate
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 #>
 
@@ -67,12 +67,12 @@ function Add-ZoomUserAssistants {
         [ValidateNotNullOrEmpty()]
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -82,11 +82,11 @@ function Add-ZoomUserAssistants {
             $assistants = @()
     
             foreach ($email in $AssistantEmail) {
-                $assistants += @{'email' = $email}
+                $assistants += @{'email' = $email }
             }
     
             foreach ($id in $AssistantId) {
-                $assistants += @{'id' = $id}
+                $assistants += @{'id' = $id }
             }
     
             $RequestBody = @{
@@ -94,16 +94,12 @@ function Add-ZoomUserAssistants {
             }
             
             $RequestBody = $RequestBody | ConvertTo-Json
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $RequestBody -Method POST -Token $Token
             
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $RequestBody -Method POST
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-            
-            if ($Passthru) {
+            if ($PassThru) {
                 Write-Output $UserId
-            } else {
+            }
+            else {
                 Write-Output $response
             }
         }

@@ -1,10 +1,10 @@
 <#
 
 .SYNOPSIS
-Retrieve a user’s settings.
+Retrieve a user's settings.
 
 .DESCRIPTION
-Retrieve a user’s settings.
+Retrieve a user's settings.
 
 .PARAMETER UserId
 The user ID or email address.
@@ -16,7 +16,7 @@ The Api Key.
 The Api Secret.
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 .EXAMPLE
 Get-ZoomUserSettings jsmith@lawfirm.com
@@ -52,8 +52,8 @@ function Get-ZoomUserSettings {
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -73,12 +73,7 @@ function Get-ZoomUserSettings {
             $Request.Query = $query.ToString()
         }
 
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
         Write-Output $response
     }
 }

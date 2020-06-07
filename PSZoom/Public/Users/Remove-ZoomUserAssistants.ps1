@@ -4,7 +4,7 @@
 Delete all user assistants.
 
 .DESCRIPTION
-Delete all user assistants. Assistants are the users to whom the current user has assigned  on the user’s behalf.
+Delete all user assistants. Assistants are the users to whom the current user has assigned  on the user's behalf.
 
 .PARAMETER UserId
 The user ID or email address.
@@ -16,7 +16,7 @@ The Api Key.
 The Api Secret.
 
 .OUTPUTS
-No output. Can use Passthru switch to pass UserId to output.
+No output. Can use PassThru switch to pass UserId to output.
 
 .EXAMPLE
 Remove-ZoomUserAssistants jmcevoy@lawfirm.com
@@ -44,12 +44,12 @@ function Remove-ZoomUserAssistants {
         [ValidateNotNullOrEmpty()]
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -57,11 +57,13 @@ function Remove-ZoomUserAssistants {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$user/assistants"
     
             try {
-                Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method DELETE
-            } catch {
+                Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
+            }
+            catch {
                 Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            } finally {
-                if ($Passthru) {
+            }
+            finally {
+                if ($PassThru) {
                     Write-Output $UserId
                 }
             }

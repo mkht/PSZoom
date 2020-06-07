@@ -73,7 +73,7 @@ Thursday (5)
 Friday (6)
 Saturday (7)
 .PARAMETER EndTimes
-Select how many timse the meeting will recur before it is canceled. (Cannot be used with "RecurrenceEndDateTime".)
+Select how many times the meeting will recur before it is canceled. (Cannot be used with "RecurrenceEndDateTime".)
 .PARAMETER EndDateTime
 Select a date the meeting will recur before it is canceled. Should be in UTC time, such as 2017-11-25T12:00:00Z. 
 (Cannot be used with "RecurrenceEndTimes".)
@@ -136,11 +136,11 @@ List of global dial-in numbers. This is an array of objects. Format:
     [string]'number'       = '+12332357613'
     [string]'type'         = <Type of number>
 .PARAMETER MeetingAuthentication
-Only authenticatd users can join meetings.
+Only authenticated users can join meetings.
 .PARAMETER AuthenticationOption
 Meeting authentication option id.
 .PARAMETER AuthenticationDomains
-If user has configured "Sign into Zoom with Specified Domains" option, this will list the doamins that are 
+If user has configured "Sign into Zoom with Specified Domains" option, this will list the domains that are 
 authenticated.
 .PARAMETER AuthenticationName
 Authentication name set in the authentication profile.
@@ -153,403 +153,398 @@ The API secret.
 #>
 
 function Update-ZoomMeeting {
-  [CmdletBinding(DefaultParameterSetName="Instant")]
-  param (
-    [Parameter(
-        Mandatory = $True, 
-        Position = 0,
-        ValueFromPipeline = $True,
-        ValueFromPipelineByPropertyName = $True
-    )]
-    [Alias('meeting_id')]
-    [string]$MeetingId,
+    [CmdletBinding(DefaultParameterSetName = "Instant")]
+    param (
+        [Parameter(
+            Mandatory = $True, 
+            Position = 0,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True
+        )]
+        [Alias('meeting_id')]
+        [string]$MeetingId,
 
-    [Parameter(
-        Position=1,
-        ValueFromPipelineByPropertyName = $True
-    )]
-    [Alias('occurrence_id')]
-    [string]$OccurrenceId,
+        [Parameter(
+            Position = 1,
+            ValueFromPipelineByPropertyName = $True
+        )]
+        [Alias('occurrence_id')]
+        [string]$OccurrenceId,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateNotNullOrEmpty()]
-    [Alias('schedule_for')]
-    [string]$ScheduleFor,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateNotNullOrEmpty()]
+        [Alias('schedule_for')]
+        [string]$ScheduleFor,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Topic,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Topic,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('Instant', 'Scheduled', 'RecurringNoFixedTime', 'RecurringFixedTime', 1, 2, 3, 8)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Type = 'Scheduled',
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('Instant', 'Scheduled', 'RecurringNoFixedTime', 'RecurringFixedTime', 1, 2, 3, 8)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Type = 'Scheduled',
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('start_time')]
-    [string]$StartTime,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('start_time')]
+        [string]$StartTime,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [int]$Duration,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [int]$Duration,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [string]$Timezone,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [string]$Timezone,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidatePattern("[A-Za-z0-9@\-_\*]{1,10}")] #Letters, numbers, '@', '-', '_', '*' from 1 to 10 chars
-    [string]$Password,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidatePattern("[A-Za-z0-9@\-_\*]{1,10}")] #Letters, numbers, '@', '-', '_', '*' from 1 to 10 chars
+        [string]$Password,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [string]$Agenda,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [string]$Agenda,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('tracking_fields')]
-    [hashtable[]]$TrackingFields,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('tracking_fields')]
+        [hashtable[]]$TrackingFields,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('Daily', 'Weekly', 'Monthly', 1, 2, 3)]
-    [Alias('recurrence_type')]
-    [string]$RecurrenceType,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('Daily', 'Weekly', 'Monthly', 1, 2, 3)]
+        [Alias('recurrence_type')]
+        [string]$RecurrenceType,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateRange(1,90)]
-    [Alias('recurrence_repeat_interval')]
-    [int]$RecurrenceRepeatInterval,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateRange(1, 90)]
+        [Alias('recurrence_repeat_interval')]
+        [int]$RecurrenceRepeatInterval,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 1, 2, 3, 4, 5, 6, 7)]
-    [Alias('weekley_days')]
-    [string[]]$WeeklyDays,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 1, 2, 3, 4, 5, 6, 7)]
+        [Alias('weekly_days')]
+        [string[]]$WeeklyDays,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateRange(1,31)]
-    [Alias('monthly_day')]
-    [int]$MonthlyDay,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateRange(1, 31)]
+        [Alias('monthly_day')]
+        [int]$MonthlyDay,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('LastWeek', 'FirstWeek', 'SecondWeek', 'ThirdWeek', 'FourthWeek')]
-    [Alias('monthly_week')]
-    [string]$MonthlyWeek,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('LastWeek', 'FirstWeek', 'SecondWeek', 'ThirdWeek', 'FourthWeek')]
+        [Alias('monthly_week')]
+        [string]$MonthlyWeek,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 1, 2, 3, 4, 5, 6, 7)]
-    [Alias('monthly_week_day')]
-    [string]$MonthlyWeekDay,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 1, 2, 3, 4, 5, 6, 7)]
+        [Alias('monthly_week_day')]
+        [string]$MonthlyWeekDay,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateRange(1,50)]
-    [Alias('end_times')]
-    [int]$EndTimes,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateRange(1, 50)]
+        [Alias('end_times')]
+        [int]$EndTimes,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidatePattern("^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$")] 
-    #Example: 2016-04-06T10:10:09Z. Regex taken from https://www.regextester.com/94925
-    [Alias('end_datetime')]
-    [string]$EndDateTime,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidatePattern("^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z)?$")] 
+        #Example: 2016-04-06T10:10:09Z. Regex taken from https://www.regextester.com/94925
+        [Alias('end_date_time')]
+        [string]$EndDateTime,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('host_video')]
-    [bool]$HostVideo,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('host_video')]
+        [bool]$HostVideo,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('cn_meeting')]
-    [bool]$CNMeeting,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('cn_meeting')]
+        [bool]$CNMeeting,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('in_meeting')]
-    [bool]$INMeeting,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('in_meeting')]
+        [bool]$INMeeting,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('join_before_host')]
-    [bool]$JoinBeforeHost,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('join_before_host')]
+        [bool]$JoinBeforeHost,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('mute_upon_entry')]
-    [bool]$MuteUponEntry,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('mute_upon_entry')]
+        [bool]$MuteUponEntry,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [bool]$Watermark,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [bool]$Watermark,
     
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('use_pmi')]
-    [bool]$UsePMI,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('use_pmi')]
+        [bool]$UsePMI,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('Automatic', 'Manual', 'None', 0, 1, 2)]
-    [Alias('approval_type')]
-    [string]$ApprovalType,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('Automatic', 'Manual', 'None', 0, 1, 2)]
+        [Alias('approval_type')]
+        [string]$ApprovalType,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('RegisterOnceAndAttendAll', 'RegisterForEachoccurrence', 'RegisterOnceAndChooseoccurrences', 0, 1, 2)]
-    [Alias('registration_type')]
-    [string]$RegistrationType,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('RegisterOnceAndAttendAll', 'RegisterForEachoccurrence', 'RegisterOnceAndChooseoccurrences', 0, 1, 2)]
+        [Alias('registration_type')]
+        [string]$RegistrationType,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('both', 'telephony', 'voip')]
-    [string]$Audio,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('both', 'telephony', 'voip')]
+        [string]$Audio,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet('local','cloud','none')]
-    [Alias('auto_recording')]
-    [string]$AutoRecording,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [ValidateSet('local', 'cloud', 'none')]
+        [Alias('auto_recording')]
+        [string]$AutoRecording,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('enforc_elogin')]
-    [bool]$EnforceLogin,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('enforce_login')]
+        [bool]$EnforceLogin,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('enforce_login_domains')]
-    [bool]$EnforceLoginDomains,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('enforce_login_domains')]
+        [bool]$EnforceLoginDomains,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('alternative_hosts')]
-    [string]$AlternativeHosts,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('alternative_hosts')]
+        [string]$AlternativeHosts,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('close_registration')]
-    [bool]$CloseRegistration,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('close_registration')]
+        [bool]$CloseRegistration,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('waitin_groom')]
-    [bool]$WaitingRoom,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('waiting_room')]
+        [bool]$WaitingRoom,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('global_dial_in_countries')]
-    [string[]]$GlobalDialInCountries,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('global_dial_in_countries')]
+        [string[]]$GlobalDialInCountries,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('contact_name')]
-    [string]$ContactName,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('contact_name')]
+        [string]$ContactName,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('contact_email')]
-    [string]$ContactEmail,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('contact_email')]
+        [string]$ContactEmail,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('global_dial_in_numbers')]
-    [hashtable[]]$GlobalDialInNumbers,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('global_dial_in_numbers')]
+        [hashtable[]]$GlobalDialInNumbers,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('Registrants_Email_Notification')]
-    [bool]$RegistrantsEmailNotification,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('Registrants_Email_Notification')]
+        [bool]$RegistrantsEmailNotification,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('meeting_authentication')]
-    [bool]$MeetingAuthentication,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('meeting_authentication')]
+        [bool]$MeetingAuthentication,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('authentication_option')]
-    [string]$AuthenticationOption,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('authentication_option')]
+        [string]$AuthenticationOption,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('authentication_domains')]
-    [string]$AuthenticationDomains,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('authentication_domains')]
+        [string]$AuthenticationDomains,
 
-    [Parameter(ValueFromPipelineByPropertyName = $True)]
-    [Alias('authentication_name')]
-    [string]$AuthenticationName,
-    [ValidateNotNullOrEmpty()]
-    [string]$ApiKey,
+        [Parameter(ValueFromPipelineByPropertyName = $True)]
+        [Alias('authentication_name')]
+        [string]$AuthenticationName,
+        [ValidateNotNullOrEmpty()]
+        [string]$ApiKey,
 
-    [ValidateNotNullOrEmpty()]
-    [string]$ApiSecret
-  )
+        [ValidateNotNullOrEmpty()]
+        [string]$ApiSecret
+    )
   
-  begin {
-    #Generate Headers with JWT (JSON Web Token)
-    $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
-  }
-  
-  process {
-    $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId"
-
-    if ($PSBoundParameters.ContainsKey('OccurrenceId')) {
-        $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
-        $query.Add('occurrence_id', $OccurrenceId)
-        $Request.Query = $query.ToString()
+    begin {
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
+  
+    process {
+        $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId"
 
-    if ($PSBoundParameters.ContainsKey('Type')) {
-        $Type = switch ($Type) {
-            'Instant'              { '1' }
-            'Scheduled'            { '2' }
-            'RecurringNoFixedTime' { '3' }
-            'RecurringFixedTime'   { '8' }
+        if ($PSBoundParameters.ContainsKey('OccurrenceId')) {
+            $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
+            $query.Add('occurrence_id', $OccurrenceId)
+            $Request.Query = $query.ToString()
         }
-    }
 
-    #The following parameters are added by default and are added to the request body
-    $requestBody = @{
-        'api_key'      = $ApiKey
-        'api_secret'   = $ApiSecret
-    }
+        if ($PSBoundParameters.ContainsKey('Type')) {
+            $Type = switch ($Type) {
+                'Instant' { '1' }
+                'Scheduled' { '2' }
+                'RecurringNoFixedTime' { '3' }
+                'RecurringFixedTime' { '8' }
+            }
+        }
 
-    #These are optional meeting parameters.
-    $OptionalParameters = @{
-        'schedule_for'    = 'ScheduleFor'
-        'topic'           = 'Topic'
-        'type'            = 'Type'
-        'timezone'        = 'Timezone'
-        'password'        = 'Password'
-        'agenda'          = 'Agenda'
-        'tracking_fields' = 'TrackingFields'
-        'start_time'      = 'StartTime'
-    }
+        #The following parameters are added by default and are added to the request body
+        $requestBody = @{
+            'api_key'    = $ApiKey
+            'api_secret' = $ApiSecret
+        }
 
-    function Remove-NonPSBoundParameters {
-        param (
-            $Obj,
-            $Parameters = $PSBoundParameters
-        )
+        #These are optional meeting parameters.
+        $OptionalParameters = @{
+            'schedule_for'    = 'ScheduleFor'
+            'topic'           = 'Topic'
+            'type'            = 'Type'
+            'timezone'        = 'Timezone'
+            'password'        = 'Password'
+            'agenda'          = 'Agenda'
+            'tracking_fields' = 'TrackingFields'
+            'start_time'      = 'StartTime'
+        }
+
+        function Remove-NonPSBoundParameters {
+            param (
+                $Obj,
+                $Parameters = $PSBoundParameters
+            )
     
-        process {
-            $NewObj = @{}
+            process {
+                $NewObj = @{ }
     
-            foreach ($Key in $Obj.Keys) {
-                if ($Parameters.ContainsKey($Obj.$Key)){
-                    $Newobj.Add($Key, (get-variable $Obj.$Key).value)
+                foreach ($Key in $Obj.Keys) {
+                    if ($Parameters.ContainsKey($Obj.$Key)) {
+                        $NewObj.Add($Key, (get-variable $Obj.$Key).value)
+                    }
+                }
+    
+                return $NewObj
+            }
+        }
+    
+        #Removes parameter if not provided in function call.
+        $OptionalParameters = Remove-NonPSBoundParameters($OptionalParameters)
+
+        #Adds parameters to requestBody
+        foreach ($Key in $OptionalParameters.Keys) {
+            if ($OptionalParameters.$Key -gt 0) {
+                $requestBody.Add($Key, $OptionalParameters.$Key)
+            }
+        }
+
+        #Recurrence object
+        if ($PSBoundParameters.ContainsKey('RegistrationType')) {
+            $RegistrationType = switch ($RegistrationType) {
+                'RegisterOnceAndAttendAll' { '1' }
+                'RegisterForEachoccurrence' { '2' }
+                'RegisterOnceAndChooseoccurrences' { '3' }
+            }
+        }
+
+        if ($PSBoundParameters.ContainsKey('WeeklyDays')) {
+            $WeeklyDays | ForEach-Object {
+                $WeeklyDays[$WeeklyDays.IndexOf($_)] = switch ($_) {
+                    #loops through each day and changes it because this parameter is an array
+                    'Sunday' { '1' }
+                    'Monday' { '2' }
+                    'Tuesday' { '3' }
+                    'Wednesday' { '4' }
+                    'Thursday' { '5' }
+                    'Friday' { '6' }
+                    'Saturday' { '7' }
                 }
             }
-    
-            return $NewObj
         }
-    }
-    
-    #Removes parameter if not provided in function call.
-    $OptionalParameters = Remove-NonPSBoundParameters($OptionalParameters)
 
-    #Adds parameters to requestBody
-    foreach ($Key in $OptionalParameters.Keys) {
-        if ($OptionalParameters.$Key -gt 0) {
-            $requestBody.Add($Key, $OptionalParameters.$Key)
-        }
-    }
-
-    #Recurrence object
-    if ($PSBoundParameters.ContainsKey('RegistrationType')) {
-        $RegistrationType = switch ($RegistrationType) {
-            'RegisterOnceAndAttendAll'         { '1' }
-            'RegisterForEachoccurrence'        { '2' }
-            'RegisterOnceAndChooseoccurrences' { '3' }
-        }
-    }
-
-    if ($PSBoundParameters.ContainsKey('WeeklyDays')) {
-        $WeeklyDays | ForEach-Object {
-            $WeeklyDays[$WeeklyDays.IndexOf($_)] = switch ($_) { #loops through each day and changes it because this parameter is an array
-                'Sunday'    { '1' }
-                'Monday'    { '2' }
-                'Tuesday'   { '3' }
-                'Wednesday' { '4' }
-                'Thursday'  { '5' }
-                'Friday'    { '6' }
-                'Saturday'  { '7' }
+        if ($PSBoundParameters.ContainsKey('MonthlyWeek')) {
+            $MonthlyWeek = switch ($MonthlyWeek) {
+                'LastWeek' { '-1' }
+                'FirstWeek' { '1' }
+                'SecondWeek' { '2' }
+                'ThirdWeek' { '3' }
+                'FourthWeek' { '4' }
             }
         }
-    }
 
-    if ($PSBoundParameters.ContainsKey('MonthlyWeek')) {
-        $MonthlyWeek = switch ($MonthlyWeek) {
-            'LastWeek'   { '-1' }
-            'FirstWeek'  { '1' }
-            'SecondWeek' { '2' }
-            'ThirdWeek'  { '3' }
-            'FourthWeek' { '4' }
+        if ($PSBoundParameters.ContainsKey('MonthlyWeekDay')) {
+            $MonthlyWeekDay = switch ($_) {
+                'Sunday' { '1' }
+                'Monday' { '2' }
+                'Tuesday' { '3' }
+                'Wednesday' { '4' }
+                'Thursday' { '5' }
+                'Friday' { '6' }
+                'Saturday' { '7' }
+            }
         }
-    }
 
-    if ($PSBoundParameters.ContainsKey('MonthlyWeekDay')) {
-        $MonthlyWeekDay = switch ($_) {
-            'Sunday'    { '1' }
-            'Monday'    { '2' }
-            'Tuesday'   { '3' }
-            'Wednesday' { '4' }
-            'Thursday'  { '5' }
-            'Friday'    { '6' }
-            'Saturday'  { '7' }
+        $Recurrence = @{
+            'type'             = 'RecurrenceType'
+            'repeat_interval'  = 'RecurrenceRepeatInterval'
+            'weekly_days'      = 'WeeklyDays'
+            'monthly_day'      = 'MonthlyDay'
+            'monthly_week_day' = 'MonthlyWeekDay'
+            'end_times'        = 'EndTimes'
+            'end_date_time'    = 'EndDateTime'
         }
-    }
 
-    $Recurrence = @{
-        'type'             = 'RecurrenceType'
-        'repeat_interval'  = 'RecurrenceRepeatInterval'
-        'weekly_days'      = 'WeeklyDays'
-        'monthly_day'      = 'MonthlyDay'
-        'monthly_week_day' = 'MonthlyWeekDay'
-        'end_times'        = 'EndTimes'
-        'end_date_time'    = 'EndDateTime'
-    }
-
-    $Recurrence = Remove-NonPSBoundParameters($Recurrence)
+        $Recurrence = Remove-NonPSBoundParameters($Recurrence)
 
 
-    #Settings Object
-    if ($PSBoundParameters.ContainsKey('ApprovalType')) {
-        $ApprovalType = switch ($ApprovalType) {
-            'Automatic' { '0' }
-            'Manual'    { '1' }
-            'None'      { '2' }
-            Default     { '2' }
+        #Settings Object
+        if ($PSBoundParameters.ContainsKey('ApprovalType')) {
+            $ApprovalType = switch ($ApprovalType) {
+                'Automatic' { '0' }
+                'Manual' { '1' }
+                'None' { '2' }
+                Default { '2' }
+            }
         }
-    }
 
-    if ($PSBoundParameters.ContainsKey('RegistrationType')) {
-        $RegistrationType = switch ($RegistrationType) {
-            'RegisterOnceAndAttendAll' { '1' }
-            'RegisterForEachoccurrence' { '2' }
-            'RegisterOnceAndChooseoccurrences' { '3' }
+        if ($PSBoundParameters.ContainsKey('RegistrationType')) {
+            $RegistrationType = switch ($RegistrationType) {
+                'RegisterOnceAndAttendAll' { '1' }
+                'RegisterForEachoccurrence' { '2' }
+                'RegisterOnceAndChooseoccurrences' { '3' }
+            }
         }
-    }
 
-    $Settings = @{
-        'host_video'              = 'HostVideo'
-        'cn_meeting'              = 'CNMeeting'
-        'in_meeting'              = 'INMeeting'
-        'join_before_host'        = 'JoinBeforeHost'
-        'mute_upon_entry'         = 'Mutentry'
-        'watermark'               = 'Watermark'
-        'use_pmi'                 = 'UsePMI'
-        'approval_type'           = 'ApprovalType'
-        'registration_type'       = 'RegistrationType'
-        'audio'                   = 'Audio'
-        'auto_recording'          = 'AutoRecording'
-        'enforce_login'           = 'Enfogin'
-        'enforce_login_domains'   = 'EnforceLoginDomains'
-        'alternative_hosts'       = 'AlternativeHosts'
-        'close_registration'      = 'CloseRegistration'
-        'waiting_room'            = 'WaitingRoom'
-        'global_dialin_countries' = 'GlobalDialInCountries'
-        'contact_name'            = 'ContactName'
-        'contact_email'           = 'ContacEmail'
-        'global_dial_in_numbers'  = 'GlobalDialInNumbers'
-        'meeting_authentication'  = 'MeetingAuthentication'
-        'authentication_option'   = 'AuthenticationOption' 
-        'authentication_domains'  = 'AuthenticationDomains'
-        'authentication_name'     = 'AuthenticationName'   
-    }
+        $Settings = @{
+            'host_video'              = 'HostVideo'
+            'cn_meeting'              = 'CNMeeting'
+            'in_meeting'              = 'INMeeting'
+            'join_before_host'        = 'JoinBeforeHost'
+            'mute_upon_entry'         = 'MuteUponEntry'
+            'watermark'               = 'Watermark'
+            'use_pmi'                 = 'UsePMI'
+            'approval_type'           = 'ApprovalType'
+            'registration_type'       = 'RegistrationType'
+            'audio'                   = 'Audio'
+            'auto_recording'          = 'AutoRecording'
+            'enforce_login'           = 'EnforceLogin'
+            'enforce_login_domains'   = 'EnforceLoginDomains'
+            'alternative_hosts'       = 'AlternativeHosts'
+            'close_registration'      = 'CloseRegistration'
+            'waiting_room'            = 'WaitingRoom'
+            'global_dialin_countries' = 'GlobalDialInCountries'
+            'contact_name'            = 'ContactName'
+            'contact_email'           = 'ContactEmail'
+            'global_dial_in_numbers'  = 'GlobalDialInNumbers'
+            'meeting_authentication'  = 'MeetingAuthentication'
+            'authentication_option'   = 'AuthenticationOption' 
+            'authentication_domains'  = 'AuthenticationDomains'
+            'authentication_name'     = 'AuthenticationName'   
+        }
 
-    $Settings = Remove-NonPSBoundParameters($Settings)
+        $Settings = Remove-NonPSBoundParameters($Settings)
         
-    $allObjects = @{
-        'recurrence' = $Recurrence
-        'settings'   = $Settings
-    }
-
-    #Add objects to requestBody if not empty.
-    foreach ($Key in $allObjects.Keys) {
-        if ($allObjects.$Key.Count -gt 0) {
-            $requestBody.Add($Key, $allObjects.$Key)
+        $allObjects = @{
+            'recurrence' = $Recurrence
+            'settings'   = $Settings
         }
+
+        #Add objects to requestBody if not empty.
+        foreach ($Key in $allObjects.Keys) {
+            if ($allObjects.$Key.Count -gt 0) {
+                $requestBody.Add($Key, $allObjects.$Key)
+            }
+        }
+
+        $requestBody = ConvertTo-Json $requestBody -Depth 10
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method PATCH -Token $Token
+        Write-Output $response
     }
-
-    $requestBody = ConvertTo-Json $requestBody -Depth 10
-
-    try {
-        $response = Invoke-RestMethod -Uri $Request.Uri -Headers $Headers -Body $requestBody -Method Patch
-    } catch {
-        Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-    }
-
-    Write-Output $response
-  }
 }

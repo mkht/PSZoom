@@ -18,7 +18,7 @@ Get-ZoomGroup 24e50639b5bb4fab9c3c
 
 #>
 
-function Get-ZoomGroup  {
+function Get-ZoomGroup {
     param (
         [Parameter(
             Mandatory = $True, 
@@ -34,19 +34,13 @@ function Get-ZoomGroup  {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$GroupId"
-
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        } finally {
-            Write-Output $response
-        }
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
+        Write-Output $response
     }
 }

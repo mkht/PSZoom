@@ -23,7 +23,7 @@ Pro (2)
 Corp (3)
 
 .PARAMETER FirstName
-User's first namee: cannot contain more than 5 Chinese words.
+User's first name: cannot contain more than 5 Chinese words.
 
 .PARAMETER LastName
 User's last name: cannot contain more than 5 Chinese words.
@@ -51,7 +51,7 @@ https://marketplace.zoom.us/docs/api-reference/zoom-api/users/usercreate
 #>
 
 function New-ZoomUser {    
-    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact='Low')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
     Param(
         [Parameter(
             Mandatory = $True,
@@ -95,12 +95,12 @@ function New-ZoomUser {
         [ValidateNotNullOrEmpty()]
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Headers with JWT (JSON Web Token)
-        $headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
     
     process {
@@ -138,10 +138,10 @@ function New-ZoomUser {
             )
 
             process {
-                $newObj = @{}
+                $newObj = @{ }
         
                 foreach ($Key in $Obj.Keys) {
-                    if ($Parameters.ContainsKey($Obj.$Key)){
+                    if ($Parameters.ContainsKey($Obj.$Key)) {
                         $newobj.Add($Key, (get-variable $Obj.$Key).value)
                     }
                 }
@@ -155,23 +155,20 @@ function New-ZoomUser {
 
         #Adds parameters to UserInfo object.
         $userInfoKeyValues.Keys | ForEach-Object {
-                $UserInfo.Add($_, $userInfoKeyValues.$_)
+            $UserInfo.Add($_, $userInfoKeyValues.$_)
         }
 
         $requestBody.add('user_info', $UserInfo)
 
         $requestBody = $requestBody | ConvertTo-Json
 
-        if ($PScmdlet.ShouldProcess) {
-            try {
-                $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $requestBody -Method Post
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
+        if ($PSCmdlet.ShouldProcess) {
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $requestBody -Method POST -Token $Token
 
-            if ($passthru) {
+            if ($PassThru) {
                 Write-Output $Email
-            } else {
+            }
+            else {
                 Write-Output $response
             }
         }

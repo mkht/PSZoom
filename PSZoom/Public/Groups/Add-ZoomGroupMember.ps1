@@ -46,8 +46,8 @@ Get-ZoomGroups | where-object {$_ -like '*Side*'} | Add-ZoomGroupMembers -email 
 
 #>
 
-function Add-ZoomGroupMember  {
-    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact='Low')]
+function Add-ZoomGroupMember {
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
     param (
         [Parameter(
             Mandatory = $True, 
@@ -75,16 +75,16 @@ function Add-ZoomGroupMember  {
         
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
-        $requestBody = @{}
+        $requestBody = @{ }
 
         $members = New-Object System.Collections.Generic.List[System.Object]
 
@@ -94,13 +94,13 @@ function Add-ZoomGroupMember  {
 
         if ($PSBoundParameters.ContainsKey('MemberEmail')) {
             $MemberEmail | ForEach-Object {
-                $members.Add(@{email = $_})
+                $members.Add(@{email = $_ })
             }
         }
 
         if ($PSBoundParameters.ContainsKey('MemberIds')) {
             $MemberId | ForEach-Object {
-                $members.Add(@{id = $_})
+                $members.Add(@{id = $_ })
             }
         }
 
@@ -114,20 +114,16 @@ function Add-ZoomGroupMember  {
 
         foreach ($Id in $GroupId) {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$Id/members"
-            if ($PScmdlet.ShouldProcess($members, 'Add')) {
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Body $RequestBody -Method POST
-                } catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
+            if ($PSCmdlet.ShouldProcess($members, 'Add')) {
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $RequestBody -Method POST -Token $Token
 
-                if (-not $passthru) {
+                if (-not $PassThru) {
                     Write-Output $response
                 }
             }
         }
 
-        if ($passthru) {
+        if ($PassThru) {
             Write-Output $GroupId
         }
     }

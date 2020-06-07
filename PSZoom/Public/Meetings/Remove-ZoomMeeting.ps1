@@ -6,7 +6,7 @@ Delete a meeting.
 Delete a meeting.
 .PARAMETER MeetingId
 The meeting ID.
-.PARAMETER OcurrenceId
+.PARAMETER OccurrenceId
 The Occurrence ID.
 .PARAMETER ApiKey
 The Api Key.
@@ -33,14 +33,14 @@ function Remove-ZoomMeeting {
 
         [Parameter(
             ValueFromPipelineByPropertyName = $True, 
-            Position=1
+            Position = 1
         )]
         [Alias('occurrence_id')]
         [string]$OccurrenceId,
 
         [Parameter(
             ValueFromPipelineByPropertyName = $True, 
-            Position=1
+            Position = 1
         )]
         [Alias('schedule_for_reminder')]
         [string]$ScheduleForReminder,
@@ -51,12 +51,12 @@ function Remove-ZoomMeeting {
         [ValidateNotNullOrEmpty()]
         [string]$ApiSecret,
 
-        [switch]$Passthru
+        [switch]$PassThru
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -69,22 +69,20 @@ function Remove-ZoomMeeting {
                 $query.Add('occurrence_id', $OccurrenceId)
             }  
 
-            if ($PSBoundParameters.ContainsKey('ScheduleForReminder')){
+            if ($PSBoundParameters.ContainsKey('ScheduleForReminder')) {
                 $query.Add('schedule_for_reminder', $ScheduleForReminder)
             }
 
             $Request.Query = $query.ToString()
         }
 
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method DELETE
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-        if (-not $Passthru) {
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
+
+        if (-not $PassThru) {
             Write-Output $response
-        } else {
-            Write-Output $Passthru
+        }
+        else {
+            Write-Output $PassThru
         }
     }
 }

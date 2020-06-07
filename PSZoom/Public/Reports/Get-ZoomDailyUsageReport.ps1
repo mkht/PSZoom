@@ -21,7 +21,7 @@ The Api Secret.
 Get-ZoomDailyUsageReport -Year 2019 -Month 2
 
 .OUTPUTS
-A hastable with the Zoom API response.
+A hashtable with the Zoom API response.
 
 #>
 
@@ -46,8 +46,8 @@ function Get-ZoomDailyUsageReport {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -62,19 +62,14 @@ function Get-ZoomDailyUsageReport {
         }
 
         if ($Month) {
-            $query.Add('month', $MOnth)
+            $query.Add('month', $Month)
         }
 
         if ($query) {
             $Request.Query = $query.ToString()
         }
-        
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-        
+
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
         Write-Output $response
     }
 }

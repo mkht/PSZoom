@@ -33,7 +33,7 @@ https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordin
 #>
 
 function Remove-ZoomMeetingRecordings {
-    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
     param (
         [Parameter(
             Mandatory = $True,
@@ -55,25 +55,19 @@ function Remove-ZoomMeetingRecordings {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
-        foreach($Id in $MeetingId) {
+        foreach ($Id in $MeetingId) {
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$Id/recordings"
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
             $query.Add('action', $Action)
             $Request.Query = $query.ToString()
 
-            if ($PScmdlet.ShouldProcess($user, 'Remove')) {
-                try {
-                    $response = Invoke-RestMethod -Uri $request.Uri -Headers $Headers -Body $RequestBody -Method DELETE
-                }
-                catch {
-                    Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-                }
-
+            if ($PSCmdlet.ShouldProcess($user, 'Remove')) {
+                $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method DELETE -Token $Token
                 Write-Output $response
             }
         }

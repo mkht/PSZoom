@@ -106,8 +106,8 @@ function New-ZoomRoomMeeting {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -117,10 +117,10 @@ function New-ZoomRoomMeeting {
             $RequestBody = @{
                 'jsonrpc' = $JsonRpc
                 'method'  = $Method
-                'params' = @{
+                'params'  = @{
                     'meeting_info' = @{
-                        'topic' = $Topic
-                        'duration' = $Duration
+                        'topic'      = $Topic
+                        'duration'   = $Duration
                         'start_time' = $StartTime
                     }
                 }
@@ -144,12 +144,7 @@ function New-ZoomRoomMeeting {
             
             $RequestBody = ConvertTo-Json $RequestBody -Depth 2
 
-            try {
-                $response = Invoke-RestMethod -Uri $Request.Uri -Headers $Headers -Body $RequestBody -Method POST
-            } catch {
-                Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-            }
-
+            $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $RequestBody -Method POST -Token $Token
             Write-Output $response
         }
     }

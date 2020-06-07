@@ -21,7 +21,7 @@ The Api Secret.
 .OUTPUTS
 .LINK
 .EXAMPLE
-Get-ZoomMeetingsFromuser jsmith@lawfirm.com
+Get-ZoomMeetingsFromUser jsmith@lawfirm.com
 
 #>
 
@@ -56,8 +56,8 @@ function Get-ZoomMeetingsFromUser {
     )
 
     begin {
-        #Generate Headers and JWT (JSON Web Token)
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
 
     process {
@@ -68,12 +68,7 @@ function Get-ZoomMeetingsFromUser {
         $query.add('page_number', $PageNumber)
         $request.Query = $query.ToString()
         
-        try {
-            $response = Invoke-RestMethod -Uri $request.Uri -Headers $headers -Method GET
-        } catch {
-            Write-Error -Message "$($_.Exception.Message)" -ErrorId $_.Exception.Code -Category InvalidOperation
-        }
-        
+        $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
         Write-Output $response
     }
 }
