@@ -730,10 +730,10 @@ function Update-ZoomUserSettings {
             }
 
             $EmailNotification = @{    
-                'jbh_reminder'              = 'bhReminder' 
-                'cancel_meeting_reminder'   = 'ancelMeetingReminder'
-                'alternative_host_reminder' = 'lternativeHostReminder'
-                'schedule_for_reminder'     = 'cheduleForReminder'
+                'jbh_reminder'              = 'JbhReminder' 
+                'cancel_meeting_reminder'   = 'CancelMeetingReminder'
+                'alternative_host_reminder' = 'AlternativeHostReminder'
+                'schedule_for_reminder'     = 'ScheduleForReminder'
             }
                 
             $Recording = @{    
@@ -744,7 +744,7 @@ function Update-ZoomUserSettings {
                 'record_audio_file'          = 'RecordAudioFile'
                 'save_chat_text'             = 'SaveChatText'
                 'show_timestamp'             = 'ShowTimestamp'
-                'recording_audio_transcript' = 'RecordingAudioTranscrip'
+                'recording_audio_transcript' = 'RecordingAudioTranscript'
                 'auto_recording'             = 'AutoRecording'
                 'host_pause_stop_recording ' = 'HostPauseStopRecording'
                 'auto_delete_cmr'            = 'AutoDeleteCmr'

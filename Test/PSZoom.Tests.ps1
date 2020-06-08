@@ -1129,8 +1129,8 @@ Describe 'Update-ZoomUserSettings' {
         PstnPasswordProtected           = $true
         RecordAudioFile                 = $true
         RecordGalleryView               = $true
-        RecordingAudioTranscrip         = $true
-        RecordPlayVoic                  = $true
+        RecordingAudioTranscript        = $true
+        RecordPlayVoice                 = $true
         RecordSpeakerView               = $true
         RemoteControl                   = $true
         RemoteSupport                   = $true
@@ -2081,7 +2081,7 @@ Describe 'New-ZoomMeeting' {
         "description": "Array of occurrence objects.",
         "items": {
           "type": "object",
-          "description": "Occurence object.",
+          "description": "Occurrence object.",
           "properties": {
             "occurrence_id": {
               "type": "integer",
@@ -2379,24 +2379,24 @@ Describe 'New-ZoomMeeting' {
     }
 
     $settingsparams = @{
-        Alternativehosts      = 'alternativehosttest@company.com'
-        Approvaltype          = 'automatic'
+        AlternativeHosts      = 'alternativehosttest@company.com'
+        ApprovalType          = 'automatic'
         Audio                 = 'both'
-        Autorecording         = 'local'
-        Closeregistration     = $True
-        Cnmeeting             = $True
-        Contactemail          = $True
-        Contactname           = $True
-        Enforcelogin          = $True
-        Enforcelogindomains   = 'enforcelogindomainstest'
-        Globaldialincountries = $True
-        Hostvideo             = $True
-        Inmeeting             = $True
-        Joinbeforehost        = $True
-        Muteuponentry         = $True
-        Registrationtype      = 'RegisterOnceAndAttendAll'
-        Usepmi                = $True
-        Waitingroom           = $True
+        AutoRecording         = 'local'
+        CloseRegistration     = $True
+        CNMeeting             = $True
+        ContactEmail          = $True
+        ContactName           = $True
+        EnforceLogin          = $True
+        EnforceLoginDomains   = 'enforcelogindomainstest'
+        GlobalDialInCountries = $True
+        HostVideo             = $True
+        INMeeting             = $True
+        JoinBeforeHost        = $True
+        MuteUponEntry         = $True
+        RegistrationType      = 'RegisterOnceAndAttendAll'
+        UsePMI                = $True
+        WaitingRoom           = $True
         Watermark             = $True
     }
 
@@ -3020,7 +3020,7 @@ Describe 'Update-ZoomMeetingPoll' {
             },
             "type": {
               "type": "string",
-              "description": "Poll Question & Answer type:<br>`single` - Single choice<br>`mutliple` - Multiple choice",
+              "description": "Poll Question & Answer type:<br>`single` - Single choice<br>`multiple` - Multiple choice",
               "enum": [
                 "single",
                 "multiple"
