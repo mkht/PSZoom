@@ -614,9 +614,6 @@ function New-ZoomMeeting {
     
     begin {
         $Uri = "https://api.zoom.us/v2/users/$userId/meetings"
-        
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
     }
     
     process {
@@ -833,6 +830,8 @@ function New-ZoomMeeting {
         }
   
         #### Misc Settings End #####
+        #Generate JWT (JSON Web Token) using the Api Key/Secret
+        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
 
         $requestBody = ConvertTo-Json $requestBody -Depth 10
         $response = Invoke-ZoomApiRestMethod -Uri $Uri -Body $requestBody -Method POST -Token $Token

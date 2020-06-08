@@ -45,12 +45,10 @@ function Get-ZoomPastMeetingParticipants {
         [string]$ApiSecret
     )
 
-    begin {
+    process {
         #Generate JWT (JSON Web Token) using the Api Key/Secret
         $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
 
-    process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/past_meetings/$MeetingUuid/participants"
         $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
         $query.Add('page_size', $PageSize)

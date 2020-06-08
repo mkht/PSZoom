@@ -111,13 +111,11 @@ function Remove-ZoomRoomMeeting {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
-
     process {
         foreach ($Number in $MeetingNumber) {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/rooms/$RoomId/meetings"  
 
             $RequestBody = @{

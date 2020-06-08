@@ -54,12 +54,10 @@ function Get-ZoomGroups {
         [string]$ApiSecret
     )
 
-    begin {
+    process {
         #Generate JWT (JSON Web Token) using the Api Key/Secret
         $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
 
-    process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups"
         $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Method GET -Token $Token
 

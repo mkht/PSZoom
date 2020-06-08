@@ -87,11 +87,6 @@ function Get-ZoomActiveInactiveHostReports {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 90
-    }
-
     process {
         if ($All) {
             [int]$requests = 0
@@ -119,6 +114,9 @@ function Get-ZoomActiveInactiveHostReports {
             Write-Output $allReports
         }
         else {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 90
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/report/users"
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
             $query.Add('from', $From)

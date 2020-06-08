@@ -96,13 +96,11 @@ function Get-ZoomRecordings {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
-
     process {
         foreach ($user in $Userid) {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$user/recordings"
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
 

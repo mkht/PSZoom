@@ -78,11 +78,6 @@ function Add-ZoomGroupMember {
         [switch]$PassThru
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
-
     process {
         $requestBody = @{ }
 
@@ -113,6 +108,9 @@ function Add-ZoomGroupMember {
         $requestBody = $requestBody | ConvertTo-Json
 
         foreach ($Id in $GroupId) {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$Id/members"
             if ($PSCmdlet.ShouldProcess($members, 'Add')) {
                 $response = Invoke-ZoomApiRestMethod -Uri $Request.Uri -Body $RequestBody -Method POST -Token $Token

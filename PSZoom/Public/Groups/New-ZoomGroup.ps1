@@ -45,14 +45,14 @@ function New-ZoomGroup {
     )
 
     begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups"
     }
 
     process {
         foreach ($n in $Name) {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
             if ($PSCmdlet.ShouldProcess($n, 'New')) {
                 $requestBody = @{
                     name = $n

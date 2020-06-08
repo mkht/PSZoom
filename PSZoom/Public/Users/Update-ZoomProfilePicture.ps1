@@ -48,13 +48,11 @@ function Update-ZoomProfilePicture {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
-        $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
-    }
-
     process {
         foreach ($user in $UserId) {
+            #Generate Header with JWT (JSON Web Token) using the Api Key/Secret
+            $Headers = New-ZoomHeaders -ApiKey $ApiKey -ApiSecret $ApiSecret
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/$user/picture"
             $LF = "`r`n";
 

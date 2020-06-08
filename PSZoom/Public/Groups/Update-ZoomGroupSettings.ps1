@@ -569,11 +569,7 @@ function Update-ZoomGroupSettings {
         $requestBody = $requestBody | ConvertTo-Json
 
         foreach ($id in $GroupId) {
-            <#
-            Generate Headers and JWT (JSON Web Token). This is typically in the begin block.
-            It has been moved within the for loop as the JWT is set to expire after 30 seconds by default. 
-            This way a new JWT is generated for each request and the JWT will not expire too soon.
-            #>
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
             $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
 
             $request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$GroupId/settings"

@@ -60,13 +60,11 @@ function Remove-ZoomMeetingRecordingFile {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
-
     process {
         foreach ($RecId in $RecordingId) {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId/recordings/$RecId"
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
             $query.Add('action', $Action)

@@ -46,13 +46,11 @@ function Get-ZoomPersonalMeetingRoomName {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
-
     process {
         foreach ($name in $VanityName) {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/users/vanity_name"
     
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  

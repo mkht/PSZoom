@@ -50,15 +50,13 @@ function Remove-ZoomGroupMembers {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
-
     process {
         foreach ($GroupId in $GroupIDs) {
             #Need to add API rate limiting
             foreach ($MemberId in $MemberIds) {
+                #Generate JWT (JSON Web Token) using the Api Key/Secret
+                $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
                 $Request = [System.UriBuilder]"https://api.zoom.us/v2/groups/$GroupId/members/$MemberId"
                 
                 if ($PSCmdlet.ShouldProcess) {

@@ -37,12 +37,10 @@ function Get-ZoomPastMeetingDetails {
         [string]$ApiSecret
     )
 
-    begin {
+    process {
         #Generate JWT (JSON Web Token) using the Api Key/Secret
         $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
 
-    process {
         $Uri = "https://api.zoom.us/v2/past_meetings/$MeetingUuid"
         $response = Invoke-ZoomApiRestMethod -Uri $Uri -Method GET -Token $Token
         Write-Output $response

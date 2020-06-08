@@ -66,12 +66,10 @@ function New-ZoomMeetingPoll {
         [string]$ApiSecret
     )
 
-    begin {
+    process {
         #Generate JWT (JSON Web Token) using the Api Key/Secret
         $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
 
-    process {
         $Request = [System.UriBuilder]"https://api.zoom.us/v2/meetings/$MeetingId/polls"
         $RequestBody = @{ }
 

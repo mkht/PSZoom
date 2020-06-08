@@ -53,13 +53,11 @@ function Update-ZoomUserStatus {
         [switch]$PassThru
     )
     
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
-    }
-
     process {
         foreach ($user in $UserId) {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 30
+
             $request = [System.UriBuilder]"https://api.zoom.us/v2/users/$user/status"
             $requestBody = @{
                 'action' = $Action.ToLower()
@@ -76,7 +74,6 @@ function Update-ZoomUserStatus {
                 else {
                     Write-Output $response
                 }
-                
             }
         }
     }

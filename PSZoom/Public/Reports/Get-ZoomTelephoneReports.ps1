@@ -90,11 +90,6 @@ function Get-ZoomTelephoneReports {
         [string]$ApiSecret
     )
 
-    begin {
-        #Generate JWT (JSON Web Token) using the Api Key/Secret
-        $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 90
-    }
-
     process {
         if ($YearToDate) {
             [int]$Requests = 0
@@ -122,6 +117,9 @@ function Get-ZoomTelephoneReports {
             Write-Output $AllTelephoneReports
         }
         else {
+            #Generate JWT (JSON Web Token) using the Api Key/Secret
+            $Token = New-ZoomApiToken -ApiKey $ApiKey -ApiSecret $ApiSecret -ValidforSeconds 90
+
             $Request = [System.UriBuilder]"https://api.zoom.us/v2/report/telephone"
             $query = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)  
             $query.Add('type', $Type)
